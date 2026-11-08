@@ -4,15 +4,7 @@ MedSafe is a Health Management Information System for outpatient and departmenta
 registration, visits, triage, consultation, laboratory, radiology, cardiology, pharmacy, theatre,
 dental, inventory, billing, insurance and administration.
 
-It is being ported from a Django modular monolith to FastAPI and Nuxt
-([ADR 0007](docs/adr/0007-fastapi-and-nuxt-port.md)), both on PostgreSQL:
-
-- **`backend/` and `frontend/`** (new): the front desk, triage, consultation and pharmacy
-  workstations as an offline-first PWA that keeps working when the internet drops, with a
-  FastAPI sync server ([ADR 0008](docs/adr/0008-offline-sync-protocol.md)). Start with
-  [backend/README.md](backend/README.md) and [frontend/README.md](frontend/README.md).
-- **The Django app** (repository root): every other module, until it is ported. Its quick start
-  is below.
+It is a Django modular monolith on PostgreSQL.
 
 The target architecture, roadmap and delivery plan are in the *HMIS Master Blueprint*. See
 [docs/](docs/README.md) for how this codebase maps onto it.
@@ -20,9 +12,6 @@ The target architecture, roadmap and delivery plan are in the *HMIS Master Bluep
 ## Repository layout
 
 ```
-backend/              FastAPI sync server and API (new)
-frontend/             Nuxt offline-first PWA (new)
-shared/               test cases both stacks check against (NEWS2)
 apps/                 Django apps, one per bounded module
   api/                versioned REST API (/api/v1/)
   manager/            authentication, staff, module access, administration, inventory pages
@@ -39,7 +28,7 @@ docs/                 architecture, ADRs, OpenAPI, runbooks, traceability
 .github/workflows/    continuous integration
 ```
 
-## Quick start (Django app)
+## Quick start
 
 Requirements: Python 3.11, Docker Desktop.
 

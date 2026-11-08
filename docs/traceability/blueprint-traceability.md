@@ -10,17 +10,17 @@ scope is missing), **Gap** (not started).
 
 | ID | Module | Status | Where | Tests | Gap against the blueprint |
 | --- | --- | --- | --- | --- | --- |
-| REG | Registration | Partial | Django `apps.patients`; offline: `backend/app/sync/commands.py` (`patient.*`), `frontend/app/pages/front-desk/` | `apps/api/tests.py`, `backend/tests/test_sync.py` | New stack has device-made UUIDs, server MRNs, external-identifier table, opaque QR token and duplicate review with merge. Missing: next of kin, IPRS/SHA lookups, search benchmark at scale |
+| REG | Registration | Partial | Django `apps.patients` | `apps/api/tests.py` | UUID identifiers, external-identifier table, duplicate detection, IPRS/SHA lookups, search benchmark at scale |
 | CSH | Cashier / front-desk payments | Partial | `apps.finance` CashierView, Payment | `apps/finance/tests.py` | M-Pesa Daraja STK push and callbacks, eTIMS receipts |
-| QUE | Queue management | Partial | Offline stack: `journey_event` drives visit stage; queues per workstation (`frontend/app/composables/useQueue.ts`) | `backend/tests/test_sync.py` | Queue tokens and display boards, service points beyond the four workstations |
-| TRG | Triage | Done | Django `apps.patients` Triage; offline: `frontend/app/pages/triage/`, NEWS2 in `backend/app/domain/news2.py` and `frontend/app/utils/news2.ts` | `apps/api/tests.py`, `backend/tests/test_news2.py`, `frontend/tests/news2.test.ts` (shared cases in `shared/news2-cases.json`) | PEWS for under-16s; FHIR Observation mapping |
-| CON | Consultation | Partial | Django `apps.doctor`; offline: `frontend/app/pages/consultation/`, append-only notes, ICD-10 diagnoses | `apps/api/tests.py`, `backend/tests/test_sync.py` | Terminology service (ICD-11), FHIR Encounter/Condition, lab and imaging orders, decision support |
+| QUE | Queue management | Gap | | | Journey-driven visit stage, queues per service point, queue tokens and display boards |
+| TRG | Triage | Partial | Django `apps.patients` Triage | `apps/api/tests.py` | NEWS2 early-warning score, PEWS for under-16s, FHIR Observation mapping |
+| CON | Consultation | Partial | Django `apps.doctor` | `apps/api/tests.py` | Terminology service (ICD-11), FHIR Encounter/Condition, lab and imaging orders, decision support |
 | DEN | Dental | Partial | `apps.departments` DentalProcedure, `/procedures/dental/` | `apps/departments/tests.py` | Odontogram, treatment plans |
 | EYE / ORT / ENT | Eye, orthopaedics, ENT clinics | Gap | Eye services can be ordered as a service category | | Specialty templates and workflows |
 | DIA | Diagnostics (cardiology) | Partial | `apps.departments` DepartmentRequest, `/diagnostics/cardiology/` | `apps/departments/tests.py` | Device and DICOM integration |
 | LAB | Laboratory | Partial | `apps.lab`, `/laboratory/` | `apps/lab/tests.py` | Sample tracking and barcodes, analyser integration, LOINC codes, FHIR DiagnosticReport |
 | RAD | Radiology | Partial | `apps.departments` DepartmentRequest, `/diagnostics/radiology/` | `apps/departments/tests.py` | PACS/DICOM, structured reporting |
-| PHM | Pharmacy | Partial | Django `apps.departments`; offline: `frontend/app/pages/pharmacy/`, server-side FEFO dispensing and allergy re-check | `apps/departments/tests.py`, `backend/tests/test_sync.py` | Drug interaction checks, FHIR MedicationRequest/Dispense, payment before dispense |
+| PHM | Pharmacy | Partial | Django `apps.departments` | `apps/departments/tests.py` | Drug interaction checks, FHIR MedicationRequest/Dispense, payment before dispense |
 | STR | Stores / inventory | Partial | `apps.departments` StockBatch, Supplier, `/inventory/` | `apps/manager/tests.py` | Purchase orders, goods received notes, inter-store transfers, expiry alerts |
 | INP | Inpatient | Gap | Menu entries reserved under `/inpatient/` | | Admissions, wards and beds, nursing charts, discharge |
 | MNU | Menu / dietary | Gap | | | |
@@ -40,19 +40,19 @@ scope is missing), **Gap** (not started).
 | Versioned REST API `/api/v1` | Done | ADR 0004 | |
 | OpenAPI in repo | Done | `docs/openapi/openapi.yaml`, checked in CI | Unique operationIds |
 | FHIR R4 under `/fhir` | Gap | | Patient, Encounter, Observation, Condition, MedicationRequest, DiagnosticReport, Claim mappings |
-| Idempotency keys, correlation IDs | Partial | New stack: every sync op is idempotent by op id (`sync_op`); `X-Correlation-ID` middleware in `backend/app/main.py` | `Idempotency-Key` on non-sync endpoints; Django app |
-| Journey events | Partial | New stack: append-only `journey_event` with device time, stage follows latest device time (ADR 0008) | Wait-time analytics on top; Django app |
+| Idempotency keys, correlation IDs | Gap | | `Idempotency-Key` on unsafe endpoints, `X-Correlation-ID` middleware |
+| Journey events | Gap | | Append-only `journey_event` table, wait-time analytics on top |
 | Integrations via outbox | Gap | | Outbox table and worker for SHA, eTIMS, M-Pesa, SMS |
-| Authentication | Partial | Django: session auth (ADR 0005). New stack: JWT access/refresh, offline unlock for 7 days (ADR 0007, 0008) | OIDC SSO, MFA |
+| Authentication | Partial | Session auth (ADR 0005) | OIDC SSO, MFA |
 | Authorisation | Partial | Module groups | ABAC (care relationship, department), break-glass with review |
-| Audit trail | Partial | New stack: hash-chained `audit_event` for every write, sign-in and history read (`backend/app/core/audit.py`) | Reads served from the device's local copy aren't audited centrally; Django app |
+| Audit trail | Gap | | Tamper-evident audit events for every write, sign-in and record read |
 | Secrets via environment | Done | `.env`, `.env.example` | Secret manager in production |
 | Transport security | Partial | Secure cookies outside DEBUG; HSTS and SSL redirect via env | TLS termination and HSTS in deployed environments |
 | Configuration over code | Done | Hospital, currency, time zone, hosts from env | Per-facility configuration in the database |
 | Localisation (English/Swahili, KES, EAT) | Partial | Currency and time zone configurable; `.env.example` defaults to KES / Africa/Nairobi | Swahili translations (`gettext`), locale formatting |
-| Offline tolerance | Partial | Front desk, triage, consultation and pharmacy work offline (ADR 0008): PWA cache, IndexedDB, command outbox, pull cursor | Local store encryption, pruning of aged-out visits, packaged edge node, cashier offline |
+| Offline tolerance | Gap | | Front desk, triage, consultation, pharmacy and cashier keep working without the internet |
 | Availability 99.5%, RPO 15 min / RTO 4 h | Gap | | Production hosting, WAL archiving, restore drills |
-| CI: lint, tests, scans | Partial | Django checks, migrations, OpenAPI, tests; backend ruff, migrations, pytest; frontend type check, Vitest, PWA build | Dependency and SAST scans, coverage gate |
+| CI: lint, tests, scans | Partial | Django checks, migrations, OpenAPI, tests | Linting, dependency and SAST scans, coverage gate |
 | Reversible migrations | Partial | Rule in the database runbook | CI check that migrations reverse |
 | Feature flags | Gap | | |
 | Navigation and routes | Done | Workspace menu with planned pages, workspace-prefixed routes, 301s from old paths ([design/navigation.md](../design/navigation.md)) | |

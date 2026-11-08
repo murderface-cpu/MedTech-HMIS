@@ -17,24 +17,6 @@ See [ADR 0001](adr/0001-modular-monolith-on-django.md).
                  PostgreSQL 16
 ```
 
-### The port to FastAPI and Nuxt
-
-The system is being ported module by module ([ADR 0007](adr/0007-fastapi-and-nuxt-port.md)).
-The front desk, triage, consultation and pharmacy have moved first, because blueprint 3.9
-requires them to keep working without the internet:
-
-```
- Device (Nuxt PWA, frontend/)                       Server (FastAPI, backend/)
-   pages ─► commands ─► IndexedDB + outbox  ──push──►  /api/v1/sync/push  ─► handlers ─► PostgreSQL (hmis)
-                         ▲                   ◄─pull──  /api/v1/sync/pull?since=<seq>
-                         └── screens read only the local copy
-```
-
-Screens never wait for the network. Every change is a command applied locally and queued; the
-server is the referee for numbering, stock and conflicts. The protocol and conflict rules are in
-[ADR 0008](adr/0008-offline-sync-protocol.md). The Django app below remains in use for every
-module not yet ported.
-
 ## Modules
 
 | App | Responsibility | Pages |
