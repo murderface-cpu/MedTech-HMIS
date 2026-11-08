@@ -1,0 +1,96 @@
+{% load static %}
+
+<div class="modal" id="create_visit_modal" role="dialog" aria-modal="true" aria-labelledby="create_visit_modal_title">
+    <div class="modal-header">
+        <h3 class="modal-title" id="create_visit_modal_title" data-create-title="Create visit" data-edit-title="Edit visit">Create visit</h3>
+        <button type="button" class="icon-button" data-close-modal aria-label="Close"><i class="fa fa-times" aria-hidden="true"></i></button>
+    </div>
+    <div class="modal-body">
+        <form>
+        {% include "./_patient_summary.html" %}
+        <div class="modal-section">
+        <div class="section-label">
+            <small>Visit details</small>
+        </div>
+        <div class="section-content">
+            <div class="section-content-row flex flex-gap-40">
+                <div class="form-control flex flex-column">
+                <label for="visit_date">Visit date *</label>
+                <input class="input" type="date" id="visit_date" data-required />
+                </div>
+                <div class="form-control flex flex-column">
+                <label for="visit_category">Category *</label>
+                <select class="input" id="visit_category" data-required>
+                  {% for category in visit_categories %}
+                    <option value="{{category.id}}">{{ category }}</option>
+                  {% empty %}
+                    <option value="">No visit categories yet: add them in the admin</option>
+                  {% endfor %}
+                </select>
+                </div>
+                <div class="form-control flex flex-column">
+                <label for="visit_specialty">Doctor specialty</label>
+                <select class="input" id="visit_specialty">
+                  <option value="">Any</option>
+                  {% for speciality in doctor_specialities %}
+                    <option value="{{speciality.id}}" data-name="{{speciality}}">{{ speciality }}</option>
+                  {% endfor %}
+                </select>
+                </div>
+                <div class="form-control flex flex-column">
+                <label for="visit_doctor">To see doctor</label>
+                <select class="input" id="visit_doctor">
+                  <option value="">Not assigned</option>
+                  {% for doctor in doctors %}
+                    <option class="doctors_options" value="{{doctor.doctor.id}}" data-specialities="{{ doctor.specialities|join:'|' }}">{{ doctor.doctor }}</option>
+                  {% endfor %}
+                </select>
+                </div>
+            </div>
+        </div>
+        </div>
+        <div class="modal-section">
+        <div class="section-label">
+            <small>Billing</small>
+        </div>
+        <div class="section-content">
+            <div class="section-content-row flex flex-gap-40">
+                <div class="form-control flex flex-column">
+                <label for="billing_methods">Billing mode</label>
+                <select class="input" id="billing_methods">
+                  <option value="">Not set</option>
+                  {% for billing_type in billing_types %}
+                    <option value="{{ billing_type.id }}" data-kind="{{ billing_type.kind }}">{{ billing_type }}</option>
+                  {% endfor %}
+                </select>
+                </div>
+                <div class="form-control flex flex-column visibility-hidden" data-billing-kind="insurance">
+                <label for="insurance_company">Insurance company</label>
+                <select class="input" id="insurance_company">
+                  {% for company in insurance_companies %}
+                    <option value="{{ company.id }}">{{ company }}</option>
+                  {% empty %}
+                    <option value="">No insurance companies registered</option>
+                  {% endfor %}
+                </select>
+                </div>
+                <div class="form-control flex flex-column visibility-hidden" data-billing-kind="account">
+                <label for="account_company">Account company</label>
+                <select class="input" id="account_company">
+                  {% for company in account_companies %}
+                    <option value="{{ company.id }}">{{ company }}</option>
+                  {% empty %}
+                    <option value="">No account companies registered</option>
+                  {% endfor %}
+                </select>
+                </div>
+            </div>
+        </div>
+        </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="button" data-close-modal>Cancel</button>
+        <button type="button" class="accented" data-submit="visit">Save visit</button>
+    </div>
+</div>

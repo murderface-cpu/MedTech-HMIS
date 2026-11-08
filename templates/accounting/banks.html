@@ -1,0 +1,38 @@
+{% extends '../utils/layout.html' %}
+{% load hmis %}
+{% block body_attributes %}data-remember-tab{% endblock %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <button type="button" class="accented section-togglers" data-section="bank_list" data-default>Accounts ({{ accounts|length }})</button>
+                <button type="button" class="accented section-togglers" data-section="add_bank">Add a bank account</button>
+            </div>
+            <section class="variable-section" id="bank_list">
+                {% if accounts %}
+                <p class="help-text">Recorded balance across accounts in use: <strong>{{ currency }} {{ total_balance|money }}</strong>. Balances are what has been recorded here; reconcile them with the bank statement.</p>
+                <table class="display" style="width:100%">
+                    <thead><tr><th>Bank</th><th>Account name</th><th>Number</th><th>Ledger account</th><th class="num">Balance</th><th>In use</th></tr></thead>
+                    <tbody>
+                        {% for account in accounts %}
+                        <tr data-href="{% url 'finance:bank' account.pk %}">
+                            <td>{{ account.bank_name }}{% if account.branch %}<br><small class="help-text">{{ account.branch }}</small>{% endif %}</td>
+                            <td>{{ account.account_name }}</td>
+                            <td>{{ account.masked_number }}</td>
+                            <td>{{ account.ledger_account|default:"" }}</td>
+                            <td class="num">{{ account.currency }} {{ account.balance|money }}</td>
+                            <td>{% if account.is_active %}<span class="status tone-ok">In use</span>{% else %}<span class="status tone-neutral">Closed</span>{% endif %}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="empty-state">No bank accounts yet. Add the hospital's accounts to record deposits of takings and payments out.</p>
+                {% endif %}
+            </section>
+            <section class="variable-section" id="add_bank">
+                {% include "utils/_form.html" with form=bank_form intent="add_bank" submit="Add bank account" tab="add_bank" %}
+            </section>
+        </section>
+    </main>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends '../utils/layout.html' %}
+{% load hmis %}
+{% block body_attributes %}data-remember-tab{% endblock %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <button type="button" class="accented section-togglers" data-section="open_orders" data-default>Open ({{ open_orders|length }})</button>
+                <button type="button" class="accented section-togglers" data-section="new_order">New order</button>
+                <button type="button" class="accented section-togglers" data-section="closed_orders">Received and cancelled</button>
+            </div>
+            <section class="variable-section" id="open_orders">
+                {% include "./_order_table.html" with orders=open_orders empty="No open orders. Create one from the New order tab." %}
+            </section>
+            <section class="variable-section" id="new_order">
+                <form method="post" class="app-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="intent" value="create">
+                    <input type="hidden" name="tab" value="new_order">
+                    {% for error in order_form.non_field_errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+                    <div class="form-grid">{% for field in order_form %}{% include "utils/_field.html" %}{% endfor %}</div>
+                    {% include "./_line_formset.html" with formset=line_formset caption="Items to order" %}
+                    <div class="form-actions"><button type="submit" class="accented">Save draft order</button></div>
+                </form>
+            </section>
+            <section class="variable-section" id="closed_orders">
+                {% include "./_order_table.html" with orders=closed_orders empty="Received and cancelled orders appear here." %}
+            </section>
+        </section>
+    </main>
+{% endblock %}

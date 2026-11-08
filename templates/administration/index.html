@@ -1,0 +1,72 @@
+{% extends '../utils/layout.html' %}
+{% block body_attributes %}data-remember-tab{% endblock %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <button type="button" class="accented section-togglers" data-section="staff_list" data-default>Staff</button>
+                <button type="button" class="accented section-togglers" data-section="register_staff">Register staff</button>
+                <button type="button" class="accented section-togglers" data-section="settings">Settings</button>
+            </div>
+            <section class="variable-section" id="staff_list">
+                {% if staff_members %}
+                <table class="display datatable" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Staff no.</th><th>Name</th><th>Title</th><th>Speciality</th><th>Phone</th>
+                            <th>Username</th><th>Modules</th><th>Active</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for member in staff_members %}
+                        {% with staff=member.staff %}
+                        <tr data-href="{% url 'manager:manager-staff' staff.pk %}">
+                            <td>{{ staff.staff_number }}</td>
+                            <td>{{ staff.getFullName }}</td>
+                            <td>{{ staff.title }}</td>
+                            <td>{{ staff.speciality|default:"" }}</td>
+                            <td>{{ staff.telnumber }}</td>
+                            <td>{% if staff.user %}{{ staff.user.get_username }}{% if not staff.user.is_active %} (disabled){% endif %}{% endif %}</td>
+                            <td>{{ member.modules|join:", " }}</td>
+                            <td>{{ staff.is_active|yesno:"Yes,No" }}</td>
+                        </tr>
+                        {% endwith %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="empty-state">No staff registered yet. Use Register Staff to add the first one.</p>
+                {% endif %}
+            </section>
+            <section class="variable-section" id="register_staff">
+                {% include "./_staff_form.html" with intent="register_staff" submit="Register" tab="register_staff" %}
+            </section>
+            <section class="variable-section" id="settings">
+                <div class="settings-grid">
+                    <div>
+                        <p class="section-title">Staff titles</p>
+                        <p class="section-subtitle">Titles of kind Doctor appear in the doctor lists; Anaesthetist and Nurse titles are offered when booking theatre.</p>
+                        <ul class="lookup-list">
+                            {% for title in staff_titles %}<li>{{ title.name }} <small>({{ title.get_kind_display }})</small></li>{% empty %}<li>None yet</li>{% endfor %}
+                        </ul>
+                        {% include "utils/_form.html" with form=title_form intent="add_title" submit="Add title" tab="settings" %}
+                    </div>
+                    <div>
+                        <p class="section-title">Doctor specialities</p>
+                        <ul class="lookup-list">
+                            {% for speciality in specialities %}<li>{{ speciality.name }}</li>{% empty %}<li>None yet</li>{% endfor %}
+                        </ul>
+                        {% include "utils/_form.html" with form=speciality_form intent="add_speciality" submit="Add speciality" tab="settings" %}
+                    </div>
+                    <div>
+                        <p class="section-title">Visit categories</p>
+                        <ul class="lookup-list">
+                            {% for category in visit_categories %}<li>{{ category.name }}</li>{% empty %}<li>None yet</li>{% endfor %}
+                        </ul>
+                        {% include "utils/_form.html" with form=category_form intent="add_category" submit="Add category" tab="settings" %}
+                    </div>
+                </div>
+            </section>
+        </section>
+    </main>
+{% endblock %}

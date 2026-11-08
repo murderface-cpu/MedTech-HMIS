@@ -1,0 +1,23 @@
+{% comment %}Staff details and sign-in account, saved together. Pass: intent, submit, tab.{% endcomment %}
+<form method="post" class="app-form">
+    {% csrf_token %}
+    <input type="hidden" name="intent" value="{{ intent }}">
+    {% if tab %}<input type="hidden" name="tab" value="{{ tab }}">{% endif %}
+    {% for error in staff_form.non_field_errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+    <p class="section-title">Staff details</p>
+    <div class="form-grid">
+        {% for field in staff_form.visible_fields %}
+            {% include "utils/_field.html" %}
+        {% endfor %}
+    </div>
+    <p class="section-title">Sign-in account</p>
+    {% for error in account_form.non_field_errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+    <div class="form-grid">
+        {% for field in account_form.visible_fields %}
+            {% include "utils/_field.html" %}
+        {% endfor %}
+    </div>
+    <div class="form-actions">
+        <button type="submit" class="accented">{{ submit }}</button>
+    </div>
+</form>

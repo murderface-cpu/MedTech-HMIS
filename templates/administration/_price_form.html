@@ -1,0 +1,8 @@
+<form method="post" class="inline-form">
+    {% csrf_token %}
+    <input type="hidden" name="intent" value="{{ intent }}">
+    <input type="hidden" name="tab" value="{{ tab }}">
+    <input type="hidden" name="pk" value="{{ pk }}">
+    <input class="input" type="number" name="price" min="0" step="0.01" value="{{ price|default_if_none:'' }}" required aria-label="Price">
+    <button type="submit">Save</button>
+</form>

@@ -1,0 +1,75 @@
+{% extends '../utils/layout.html' %}
+{% load hmis %}
+{% block page_title %}{{ order.order_number }}{% endblock %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <a class="button-link accented" href="{% url 'stores:purchase-orders' %}"><i class="fa fa-arrow-left"></i>&nbsp;Purchase orders</a>
+                <button type="button" data-action="print"><i class="fa fa-print" aria-hidden="true"></i>&nbsp;Print</button>
+            </div>
+            <div class="report">
+                <div class="invoice-header">
+                    <p class="section-title">Purchase order &middot; {{ hospital_name }}</p>
+                    <span class="status {{ order.status|tone }}">{{ order.get_status_display }}</span>
+                </div>
+                <dl class="invoice-meta">
+                    <div><dt>Supplier</dt><dd>{{ order.supplier }}{% if order.supplier.telephone %}<br>{{ order.supplier.telephone }}{% endif %}</dd></div>
+                    <div><dt>Created</dt><dd>{{ order.created_on|date:"DATE_FORMAT" }} by {{ order.created_by|default:"" }}</dd></div>
+                    <div><dt>Expected delivery</dt><dd>{{ order.expected_on|date:"DATE_FORMAT"|default:"Not set" }}</dd></div>
+                    {% if order.sent_on %}<div><dt>Sent</dt><dd>{{ order.sent_on|date:"DATE_FORMAT" }}</dd></div>{% endif %}
+                </dl>
+                {% if order.notes %}<p>{{ order.notes }}</p>{% endif %}
+            </div>
+
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="intent" value="receive">
+                <table class="display" style="width:100%">
+                    <thead><tr><th>Item</th><th class="num">Ordered</th><th class="num">Unit cost ({{ currency }})</th><th class="num">Total ({{ currency }})</th><th class="num">Received</th>{% if order.is_open %}<th>Delivered now</th><th>Expiry date</th>{% endif %}{% if order.status == "draft" %}<th></th>{% endif %}</tr></thead>
+                    <tbody>
+                        {% for line in lines %}
+                        <tr>
+                            <td>{{ line.drug.name }}</td>
+                            <td class="num">{{ line.quantity_ordered }}</td>
+                            <td class="num">{{ line.unit_cost|money }}</td>
+                            <td class="num">{{ line.total|money }}</td>
+                            <td class="num">{{ line.quantity_received }}</td>
+                            {% if order.is_open %}
+                            <td>{% if line.outstanding %}<input class="input input-narrow" type="number" name="receive_{{ line.pk }}" min="0" max="{{ line.outstanding }}" placeholder="{{ line.outstanding }}" aria-label="Units of {{ line.drug.name }} delivered">{% else %}<span class="status tone-ok">Complete</span>{% endif %}</td>
+                            <td>{% if line.outstanding %}<input class="input" type="date" name="expiry_{{ line.pk }}" aria-label="Expiry of {{ line.drug.name }}">{% endif %}</td>
+                            {% endif %}
+                            {% if order.status == "draft" %}
+                            <td><button type="submit" form="remove-line-{{ line.pk }}" class="link-button">Remove</button></td>
+                            {% endif %}
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="7" class="dataTables_empty">No lines yet. Add the items to order below.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div class="totals"><span>Order total: <strong>{{ currency }} {{ order.total|money }}</strong></span></div>
+                {% if order.is_open %}<div class="form-actions no-print"><button type="submit" class="accented">Receive into stock</button></div>{% endif %}
+            </form>
+            {% for line in lines %}
+            <form method="post" id="remove-line-{{ line.pk }}" hidden>{% csrf_token %}<input type="hidden" name="intent" value="remove_line"><input type="hidden" name="line" value="{{ line.pk }}"></form>
+            {% endfor %}
+
+            {% if order.status == "draft" %}
+            <div class="no-print">
+                <p class="section-title">Add an item</p>
+                {% include "utils/_form.html" with form=line_form intent="add_line" submit="Add item" %}
+            </div>
+            {% endif %}
+
+            <div class="action-bar no-print">
+                {% if order.status == "draft" %}
+                <form method="post">{% csrf_token %}<input type="hidden" name="intent" value="send"><button type="submit" class="accented">Mark as sent to supplier</button></form>
+                {% endif %}
+                {% if order.status == "draft" or order.status == "sent" %}
+                <form method="post" data-confirm="Cancel {{ order.order_number }}?">{% csrf_token %}<input type="hidden" name="intent" value="cancel"><button type="submit">Cancel order</button></form>
+                {% endif %}
+            </div>
+        </section>
+    </main>
+{% endblock %}

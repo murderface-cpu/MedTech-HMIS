@@ -1,0 +1,18 @@
+{% comment %}Current inpatients. Pass inpatients, empty, and optionally action_label.{% endcomment %}
+<table class="display datatable" data-empty="{{ empty }}" style="width:100%">
+    <thead><tr><th>Ward and bed</th><th>Patient</th><th>Admission</th><th>Reason</th><th>Doctor</th><th>Admitted</th><th>Days</th>{% if action_label %}<th></th>{% endif %}</tr></thead>
+    <tbody>
+        {% for admission in inpatients %}
+        <tr data-href="{% url 'clinical:admission' admission.pk %}">
+            <td>{{ admission.bed.ward.name }}, bed {{ admission.bed.number }}</td>
+            <td>{{ admission.patient }}<br><small class="help-text">{{ admission.patient.gender }}, {{ admission.patient.age }}</small></td>
+            <td>{{ admission.admission_number }}</td>
+            <td>{{ admission.reason }}</td>
+            <td>{{ admission.doctor|default:"" }}</td>
+            <td data-order="{{ admission.admitted_on|date:'c' }}">{{ admission.admitted_on|date:"DATE_FORMAT" }}</td>
+            <td>{{ admission.days_admitted }}</td>
+            {% if action_label %}<td><a class="button-link accented" href="{% url 'clinical:admission' admission.pk %}#discharge">{{ action_label }}</a></td>{% endif %}
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

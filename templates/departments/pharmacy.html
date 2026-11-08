@@ -1,0 +1,86 @@
+{% extends '../utils/layout.html' %}
+{% block body_attributes %}data-remember-tab{% endblock %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <button type="button" class="accented section-togglers" data-section="pending_prescriptions" data-default>To dispense ({{ pending|length }})</button>
+                <button type="button" class="accented section-togglers" data-section="issued_prescriptions">Dispensed</button>
+                <button type="button" class="accented section-togglers" data-section="pharmacy_stock">Stock</button>
+            </div>
+            <section class="variable-section" id="pending_prescriptions">
+                {% if pending %}
+                <table class="display datatable" style="width:100%">
+                    <thead>
+                        <tr><th>Prescribed</th><th>Patient</th><th>Visit</th><th>Drug</th><th>Dosage</th><th>Duration</th><th>Prescribed</th><th>Issued</th><th>In stock</th><th>By</th><th>Issue</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for prescription in pending %}
+                        <tr>
+                            <td data-order="{{ prescription.created_on|date:'c' }}">{{ prescription.created_on|date:"DATETIME_FORMAT" }}</td>
+                            <td>{{ prescription.visit.patient }}</td>
+                            <td>{{ prescription.visit.visit_id }}</td>
+                            <td>{{ prescription.drug.name }}</td>
+                            <td>{{ prescription.dosage }}</td>
+                            <td>{{ prescription.duration|default:"" }}</td>
+                            <td>{{ prescription.quantity }}</td>
+                            <td>{{ prescription.quantity_issued }}</td>
+                            <td>{{ prescription.drug.stock_available }}</td>
+                            <td>{{ prescription.prescribed_by|default:"" }}</td>
+                            <td>
+                                <form method="post" class="inline-form">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="intent" value="issue">
+                                    <input type="hidden" name="tab" value="pending_prescriptions">
+                                    <input type="hidden" name="prescription" value="{{ prescription.pk }}">
+                                    <input class="input" type="number" name="quantity" min="1" max="{{ prescription.balance }}" value="{{ prescription.balance }}" required aria-label="Quantity to issue">
+                                    <button type="submit">Issue</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="empty-state">No prescriptions waiting to be dispensed.</p>
+                {% endif %}
+            </section>
+            <section class="variable-section" id="issued_prescriptions">
+                <table class="display datatable" data-empty="No prescriptions issued yet." style="width:100%">
+                    <thead><tr><th>Issued</th><th>Patient</th><th>Drug</th><th>Dosage</th><th>Issued Qty</th><th>Amount ({{ currency }})</th><th>Issued by</th></tr></thead>
+                    <tbody>
+                        {% for prescription in issued %}
+                        <tr>
+                            <td data-order="{{ prescription.issued_on|date:'c' }}">{{ prescription.issued_on|date:"DATETIME_FORMAT" }}</td>
+                            <td>{{ prescription.visit.patient }}</td>
+                            <td>{{ prescription.drug.name }}</td>
+                            <td>{{ prescription.dosage }}</td>
+                            <td>{{ prescription.quantity_issued }} of {{ prescription.quantity }}</td>
+                            <td>{{ prescription.issued_amount }}</td>
+                            <td>{{ prescription.issued_by|default:"" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+            <section class="variable-section" id="pharmacy_stock">
+                <table class="display datatable" data-empty="No drugs in stock." style="width:100%">
+                    <thead><tr><th>Drug no.</th><th>Drug</th><th>Category</th><th>Unit price ({{ currency }})</th><th>In stock</th><th>Expired</th><th>Next expiry</th></tr></thead>
+                    <tbody>
+                        {% for drug in drugs %}
+                        <tr>
+                            <td>{{ drug.drug_number }}</td>
+                            <td>{{ drug.name }}</td>
+                            <td>{{ drug.category }}</td>
+                            <td>{{ drug.unit_price }}</td>
+                            <td>{{ drug.stock_available }}</td>
+                            <td>{{ drug.stock_expired }}</td>
+                            <td>{{ drug.next_expiry|default:"" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+        </section>
+    </main>
+{% endblock %}

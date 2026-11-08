@@ -1,0 +1,20 @@
+{% if requests %}
+<table class="display datatable" style="width:100%">
+    <thead><tr><th>Requested</th><th>Patient</th><th>Visit</th><th>Examination</th><th>Clinical notes</th><th>Requested by</th><th>Status</th></tr></thead>
+    <tbody>
+        {% for department_request in requests %}
+        <tr data-href="{% url 'departments:departments-report' department_request.department department_request.pk %}">
+            <td data-order="{{ department_request.created_on|date:'c' }}">{{ department_request.created_on|date:"DATETIME_FORMAT" }}</td>
+            <td>{{ department_request.visit.patient }}</td>
+            <td>{{ department_request.visit.visit_id }}</td>
+            <td>{{ department_request.service.name }}</td>
+            <td>{{ department_request.narration|default:""|truncatechars:60 }}</td>
+            <td>{{ department_request.requested_by|default:"" }}</td>
+            <td><span class="status {{ department_request.status }}">{{ department_request.get_status_display }}</span></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p class="empty-state">{{ empty|default:"No examinations." }}</p>
+{% endif %}

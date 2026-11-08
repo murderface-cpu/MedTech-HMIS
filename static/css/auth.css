@@ -1,0 +1,153 @@
+/* Sign-in page: same tokens as system.css, one quiet card on the app ground */
+:root {
+  --c-ground: #f4f6f8;
+  --c-surface: #ffffff;
+  --c-line: #e4e7ec;
+  --c-line-strong: #d0d5dd;
+  --c-ink: #101828;
+  --c-ink-2: #344054;
+  --c-muted: #475467;
+  --c-primary: #1f5bd8;
+  --c-primary-hover: #194cb5;
+  --c-danger: #b42318;
+}
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+body {
+  min-block-size: 100vh;
+  min-block-size: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem 1rem;
+  background-color: var(--c-ground);
+  color: var(--c-ink);
+  font: 1rem/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+.auth {
+  inline-size: min(25rem, 100%);
+  display: grid;
+  gap: 1.5rem;
+}
+.auth-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.auth-brand img {
+  inline-size: 3.5rem;
+  block-size: 3.5rem;
+  object-fit: contain;
+}
+.auth-brand p {
+  color: var(--c-ink-2);
+  font-weight: 600;
+}
+.auth-card {
+  display: grid;
+  gap: 1.5rem;
+  padding: 2rem;
+  background-color: var(--c-surface);
+  border: 1px solid var(--c-line);
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgb(16 24 40 / 0.05);
+}
+.auth-card h1 {
+  font-size: 1.5rem;
+  font-weight: 650;
+  line-height: 1.25;
+}
+.auth-form {
+  display: grid;
+  gap: 1.25rem;
+}
+.auth-field {
+  display: grid;
+  gap: 0.375rem;
+}
+.auth-field label {
+  color: var(--c-ink-2);
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+.auth-form input {
+  inline-size: 100%;
+  min-block-size: 2.75rem;
+  padding: 0.5rem 0.75rem;
+  background-color: var(--c-surface);
+  border: 1px solid var(--c-line-strong);
+  border-radius: 6px;
+  color: var(--c-ink);
+  font: inherit;
+}
+.auth-form input:focus-visible {
+  outline: 2px solid var(--c-primary);
+  outline-offset: 1px;
+  border-color: var(--c-primary);
+}
+.password-field {
+  position: relative;
+}
+.password-field input {
+  padding-inline-end: 3rem;
+}
+.password-field button {
+  position: absolute;
+  inset-block: 0;
+  inset-inline-end: 0;
+  inline-size: 2.75rem;
+  border: none;
+  border-radius: 0 6px 6px 0;
+  background: transparent;
+  color: var(--c-muted);
+  font-size: 1rem;
+  cursor: pointer;
+}
+.password-field button:focus-visible {
+  outline: 2px solid var(--c-primary);
+  outline-offset: -2px;
+}
+.auth-submit {
+  min-block-size: 2.75rem;
+  border: none;
+  border-radius: 6px;
+  background-color: var(--c-primary);
+  color: #ffffff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 150ms ease, transform 120ms ease-out;
+}
+.auth-submit:active {
+  transform: scale(0.98);
+}
+.auth-submit:focus-visible {
+  outline: 2px solid var(--c-primary);
+  outline-offset: 2px;
+}
+@media (hover: hover) {
+  .auth-submit:hover {
+    background-color: var(--c-primary-hover);
+  }
+}
+.auth-error {
+  padding: 0.75rem 1rem;
+  border: 1px solid #fecdca;
+  border-radius: 6px;
+  background-color: #fef3f2;
+  color: var(--c-danger);
+  font-size: 0.9375rem;
+}
+.auth-help {
+  color: var(--c-muted);
+  font-size: 0.9375rem;
+}
+@media (prefers-reduced-motion: reduce) {
+  .auth-submit {
+    transition: none;
+  }
+}

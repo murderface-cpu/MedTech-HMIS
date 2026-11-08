@@ -1,0 +1,146 @@
+{% extends '../utils/layout.html' %}
+{% load hmis %}
+{% block body_attributes %}data-remember-tab data-auto-refresh="60"{% endblock %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <button type="button" class="accented section-togglers" data-section="waiting_cases" data-default>Waiting ({{ waiting|length }})</button>
+                <button type="button" class="accented section-togglers" data-section="in_treatment">In treatment ({{ in_treatment|length }})</button>
+                <button type="button" class="accented section-togglers" data-section="awaiting_admission">Awaiting admission ({{ awaiting_admission|length }})</button>
+                <button type="button" class="accented section-togglers" data-section="closed_cases">Closed</button>
+                <a class="button-link" href="{% url 'clinical:emergency-check-in' %}"><i class="fa fa-plus" aria-hidden="true"></i> Check in</a>
+            </div>
+
+            <dl class="acuity-strip" aria-label="Open cases by triage category">
+                <div class="acuity-red"><dt>Emergency</dt><dd>{{ acuity_counts.red }}</dd></div>
+                <div class="acuity-orange"><dt>Very urgent</dt><dd>{{ acuity_counts.orange }}</dd></div>
+                <div class="acuity-yellow"><dt>Urgent</dt><dd>{{ acuity_counts.yellow }}</dd></div>
+                <div class="acuity-green"><dt>Routine</dt><dd>{{ acuity_counts.green }}</dd></div>
+            </dl>
+
+            <section class="variable-section" id="waiting_cases">
+                {% if waiting %}
+                <table class="display" style="width:100%">
+                    <thead><tr><th>Category</th><th>Waiting</th><th>Patient</th><th>Complaint</th><th>Arrived by</th><th>Start treatment</th></tr></thead>
+                    <tbody>
+                        {% for case in waiting %}
+                        <tr>
+                            <td><span class="acuity-tag acuity-{{ case.acuity }}">{{ case.get_acuity_display }}</span></td>
+                            <td>
+                                <strong>{{ case.waiting_minutes }} min</strong>
+                                {% if case.overdue %}<br><span class="status tone-bad"><i class="fa fa-exclamation-circle" aria-hidden="true"></i>&nbsp;{% if case.target_minutes %}Over the {{ case.target_minutes }} min target{% else %}To be seen at once{% endif %}</span>{% endif %}
+                            </td>
+                            <td>{{ case.patient }}<br><small class="help-text">{{ case.case_number }} &middot; {{ case.patient.gender }}, {{ case.patient.age }}</small></td>
+                            <td>{{ case.chief_complaint }}</td>
+                            <td>{{ case.get_arrival_mode_display }}</td>
+                            <td>
+                                <form method="post" class="inline-form">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="intent" value="start">
+                                    <input type="hidden" name="tab" value="waiting_cases">
+                                    <input type="hidden" name="case" value="{{ case.pk }}">
+                                    <select class="input" name="attending" aria-label="Attending doctor">
+                                        <option value="">Doctor</option>
+                                        {% for doctor in doctors %}<option value="{{ doctor.pk }}" {% if case.attending_id == doctor.pk %}selected{% endif %}>{{ doctor }}</option>{% endfor %}
+                                    </select>
+                                    <button type="submit" class="accented">Start</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="empty-state">Nobody is waiting. New arrivals appear here, most urgent first, once checked in.</p>
+                {% endif %}
+            </section>
+
+            <section class="variable-section" id="in_treatment">
+                {% if in_treatment %}
+                <table class="display" style="width:100%">
+                    <thead><tr><th>Category</th><th>Patient</th><th>Complaint</th><th>Doctor</th><th>Seen after</th><th>Next step</th></tr></thead>
+                    <tbody>
+                        {% for case in in_treatment %}
+                        <tr>
+                            <td><span class="acuity-tag acuity-{{ case.acuity }}">{{ case.get_acuity_display }}</span></td>
+                            <td>{{ case.patient }}<br><small class="help-text">{{ case.case_number }}{% if case.visit %} &middot; {{ case.visit.visit_id }}{% endif %}</small></td>
+                            <td>{{ case.chief_complaint }}</td>
+                            <td>{{ case.attending|default:"" }}</td>
+                            <td>{{ case.waiting_minutes }} min</td>
+                            <td>
+                                <div class="row-actions">
+                                    <details class="row-popover">
+                                        <summary class="button-link accented">Admit</summary>
+                                        <form method="post" class="popover-form">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="intent" value="request_admission">
+                                            <input type="hidden" name="tab" value="in_treatment">
+                                            <input type="hidden" name="case" value="{{ case.pk }}">
+                                            <div class="form-control flex flex-column"><label for="ward-{{ case.pk }}">Ward</label>
+                                                <select class="input" id="ward-{{ case.pk }}" name="ward"><option value="">Any ward</option>{% for ward in wards %}<option value="{{ ward.pk }}">{{ ward.name }}</option>{% endfor %}</select></div>
+                                            <div class="form-control flex flex-column"><label for="reason-{{ case.pk }}">Reason</label>
+                                                <input class="input" id="reason-{{ case.pk }}" name="reason" value="{{ case.chief_complaint }}"></div>
+                                            <button type="submit" class="accented">Request admission</button>
+                                        </form>
+                                    </details>
+                                    <details class="row-popover">
+                                        <summary class="button-link">Close case</summary>
+                                        <form method="post" class="popover-form" data-confirm="Close {{ case.case_number }} for {{ case.patient }}?">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="intent" value="close">
+                                            <input type="hidden" name="tab" value="in_treatment">
+                                            <input type="hidden" name="case" value="{{ case.pk }}">
+                                            {% for field in outcome_form %}{% include "utils/_field.html" %}{% endfor %}
+                                            <button type="submit">Close case</button>
+                                        </form>
+                                    </details>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="empty-state">No patients in treatment. Start treatment from the Waiting tab.</p>
+                {% endif %}
+            </section>
+
+            <section class="variable-section" id="awaiting_admission">
+                <table class="display datatable" data-empty="No emergency patients are waiting for a bed." style="width:100%">
+                    <thead><tr><th>Category</th><th>Patient</th><th>Complaint</th><th>Doctor</th><th>In emergency</th></tr></thead>
+                    <tbody>
+                        {% for case in awaiting_admission %}
+                        <tr data-href="{% url 'clinical:awaiting-admission' %}">
+                            <td><span class="acuity-tag acuity-{{ case.acuity }}">{{ case.get_acuity_display }}</span></td>
+                            <td>{{ case.patient }} <small class="help-text">{{ case.case_number }}</small></td>
+                            <td>{{ case.chief_complaint }}</td>
+                            <td>{{ case.attending|default:"" }}</td>
+                            <td>{{ case.waiting_minutes }} min</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+
+            <section class="variable-section" id="closed_cases">
+                <table class="display datatable" data-empty="Closed cases appear here." style="width:100%">
+                    <thead><tr><th>Closed</th><th>Case</th><th>Patient</th><th>Category</th><th>Complaint</th><th>Outcome</th><th>Notes</th></tr></thead>
+                    <tbody>
+                        {% for case in closed %}
+                        <tr>
+                            <td data-order="{{ case.closed_on|date:'c' }}">{{ case.closed_on|date:"DATETIME_FORMAT" }}</td>
+                            <td>{{ case.case_number }}</td>
+                            <td>{{ case.patient }}</td>
+                            <td><span class="acuity-tag acuity-{{ case.acuity }}">{{ case.get_acuity_display }}</span></td>
+                            <td>{{ case.chief_complaint }}</td>
+                            <td><span class="status {{ case.status|tone }}">{{ case.get_status_display }}</span></td>
+                            <td>{{ case.outcome_notes }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+        </section>
+    </main>
+{% endblock %}

@@ -1,0 +1,22 @@
+{% comment %}
+Renders a Django form in the project's form style.
+Pass: form, intent (the view's post_<intent> handler), action (optional url), submit (button label),
+tab (section to reopen after saving), confirm (optional question asked before submitting).
+{% endcomment %}
+<form method="post" class="app-form" {% if action %}action="{{ action }}"{% endif %} {% if confirm %}data-confirm="{{ confirm }}"{% endif %}>
+    {% csrf_token %}
+    {% if intent %}<input type="hidden" name="intent" value="{{ intent }}">{% endif %}
+    {% if tab %}<input type="hidden" name="tab" value="{{ tab }}">{% endif %}
+    {% for hidden in form.hidden_fields %}{{ hidden }}{% endfor %}
+    {% for error in form.non_field_errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+    <div class="modal-section">
+        <div class="section-content form-grid">
+            {% for field in form.visible_fields %}
+                {% include "utils/_field.html" %}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="form-actions">
+        <button type="submit" class="accented">{{ submit|default:"Save" }}</button>
+    </div>
+</form>

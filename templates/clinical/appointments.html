@@ -1,0 +1,112 @@
+{% extends '../utils/layout.html' %}
+{% load hmis %}
+{% block body_attributes %}data-remember-tab{% endblock %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <button type="button" class="accented section-togglers" data-section="today_appointments" data-default>Today ({{ booked_today }} to arrive)</button>
+                <button type="button" class="accented section-togglers" data-section="upcoming_appointments">Upcoming ({{ upcoming|length }})</button>
+                <button type="button" class="accented section-togglers" data-section="book_appointment">Book appointment</button>
+                <button type="button" class="accented section-togglers" data-section="appointment_history">History</button>
+            </div>
+
+            <section class="variable-section" id="today_appointments">
+                {% if today %}
+                <table class="display datatable" style="width:100%">
+                    <thead><tr><th>Time</th><th>Patient</th><th>Patient ID</th><th>Doctor</th><th>Reason</th><th>Status</th><th>Action</th></tr></thead>
+                    <tbody>
+                        {% for appointment in today %}
+                        <tr>
+                            <td data-order="{{ appointment.scheduled_for|date:'c' }}">{{ appointment.scheduled_for|time:"H:i" }}</td>
+                            <td>{{ appointment.patient }}</td>
+                            <td>{{ appointment.patient.patient_id }}</td>
+                            <td>{{ appointment.doctor|default:"Any doctor" }}{% if appointment.speciality %}<br><small class="help-text">{{ appointment.speciality }}</small>{% endif %}</td>
+                            <td>{{ appointment.reason|default:"" }}</td>
+                            <td><span class="status {{ appointment.status|tone }}">{{ appointment.get_status_display }}</span>{% if appointment.visit %}<br><small class="help-text">{{ appointment.visit.visit_id }}</small>{% endif %}</td>
+                            <td>
+                                {% if appointment.status == "booked" %}
+                                <div class="row-actions">
+                                    <details class="row-popover">
+                                        <summary class="button-link accented">Check in</summary>
+                                        <form method="post" class="popover-form">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="intent" value="check_in">
+                                            <input type="hidden" name="tab" value="today_appointments">
+                                            <input type="hidden" name="appointment" value="{{ appointment.pk }}">
+                                            <p class="section-subtitle">Check in {{ appointment.patient.firstname }}</p>
+                                            {% for field in checkin_form.visible_fields %}{% include "utils/_field.html" %}{% endfor %}
+                                            <button type="submit" class="accented">Open visit</button>
+                                        </form>
+                                    </details>
+                                    <form method="post" class="inline-form">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="intent" value="set_status">
+                                        <input type="hidden" name="tab" value="today_appointments">
+                                        <input type="hidden" name="appointment" value="{{ appointment.pk }}">
+                                        <input type="hidden" name="status" value="missed">
+                                        <button type="submit">Missed</button>
+                                    </form>
+                                </div>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="empty-state">No appointments today. Book one from the Book appointment tab; it appears here on the day.</p>
+                {% endif %}
+            </section>
+
+            <section class="variable-section" id="upcoming_appointments">
+                <table class="display datatable" data-empty="No appointments booked after today." style="width:100%">
+                    <thead><tr><th>Date</th><th>Patient</th><th>Phone</th><th>Doctor</th><th>Reason</th><th>Booked by</th><th></th></tr></thead>
+                    <tbody>
+                        {% for appointment in upcoming %}
+                        <tr>
+                            <td data-order="{{ appointment.scheduled_for|date:'c' }}">{{ appointment.scheduled_for|date:"D j M, H:i" }}</td>
+                            <td>{{ appointment.patient }} <small class="help-text">{{ appointment.patient.patient_id }}</small></td>
+                            <td>{{ appointment.patient.telnumber }}</td>
+                            <td>{{ appointment.doctor|default:"Any doctor" }}</td>
+                            <td>{{ appointment.reason|default:"" }}</td>
+                            <td>{{ appointment.created_by|default:"" }}</td>
+                            <td>
+                                <form method="post" class="inline-form" data-confirm="Cancel the appointment for {{ appointment.patient }}?">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="intent" value="set_status">
+                                    <input type="hidden" name="tab" value="upcoming_appointments">
+                                    <input type="hidden" name="appointment" value="{{ appointment.pk }}">
+                                    <input type="hidden" name="status" value="cancelled">
+                                    <button type="submit">Cancel</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+
+            <section class="variable-section" id="book_appointment">
+                {% include "utils/_form.html" with form=appointment_form intent="book" submit="Book appointment" tab="book_appointment" %}
+            </section>
+
+            <section class="variable-section" id="appointment_history">
+                <table class="display datatable" data-empty="Past, missed and cancelled appointments appear here." style="width:100%">
+                    <thead><tr><th>Date</th><th>Patient</th><th>Doctor</th><th>Reason</th><th>Status</th></tr></thead>
+                    <tbody>
+                        {% for appointment in history %}
+                        <tr>
+                            <td data-order="{{ appointment.scheduled_for|date:'c' }}">{{ appointment.scheduled_for|date:"DATETIME_FORMAT" }}</td>
+                            <td>{{ appointment.patient }}</td>
+                            <td>{{ appointment.doctor|default:"Any doctor" }}</td>
+                            <td>{{ appointment.reason|default:"" }}</td>
+                            <td><span class="status {{ appointment.status|tone }}">{{ appointment.get_status_display }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+        </section>
+    </main>
+{% endblock %}

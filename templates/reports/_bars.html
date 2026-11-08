@@ -1,0 +1,14 @@
+{% comment %}Horizontal bars from apps.reports.metrics.bar_list. Pass bars, empty, and show_share to print each row's share of the total.{% endcomment %}
+{% if bars.rows %}
+<ol class="bar-list" role="list">
+    {% for row in bars.rows %}
+    <li class="bar-row">
+        <span class="bar-label">{% if row.link %}<a href="{{ row.link }}">{{ row.label }}</a>{% else %}{{ row.label }}{% endif %}</span>
+        <span class="bar-track" aria-hidden="true"><span class="bar-fill" style="--w: {{ row.width }}%"></span></span>
+        <span class="bar-value">{{ row.value }}{% if show_share %} <small>{{ row.share }}%</small>{% endif %}</span>
+    </li>
+    {% endfor %}
+</ol>
+{% else %}
+<p class="panel-empty">{{ empty }}</p>
+{% endif %}

@@ -1,0 +1,81 @@
+{% extends '../utils/layout.html' %}
+{% load hmis %}
+{% block body_attributes %}data-remember-tab{% endblock %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <button type="button" class="accented section-togglers" data-section="pending_requisitions" data-default>Pending ({{ pending|length }})</button>
+                <button type="button" class="accented section-togglers" data-section="new_requisition">New requisition</button>
+                <button type="button" class="accented section-togglers" data-section="handled_requisitions">Handled</button>
+            </div>
+            <section class="variable-section" id="pending_requisitions">
+                {% if can_issue %}<p class="help-text">Issued stock leaves the store count. Pharmacy shares the store's count, so a pharmacy requisition is recorded without a deduction; its stock leaves when it is dispensed.</p>{% endif %}
+                {% for requisition in pending %}
+                <form method="post" class="requisition-card">
+                    {% csrf_token %}
+                    <input type="hidden" name="tab" value="pending_requisitions">
+                    <input type="hidden" name="requisition" value="{{ requisition.pk }}">
+                    <header class="exam-panel-head">
+                        <div>
+                            <h2>{{ requisition.requisition_number }} &middot; {{ requisition.get_department_display }}</h2>
+                            <p class="help-text">Requested by {{ requisition.requested_by|default:"" }}, {{ requisition.requested_on|date:"DATETIME_FORMAT" }}{% if requisition.notes %} &middot; {{ requisition.notes }}{% endif %}</p>
+                        </div>
+                        <span class="status {{ requisition.status|tone }}">{{ requisition.get_status_display }}</span>
+                    </header>
+                    <table class="display" style="width:100%">
+                        <thead><tr><th>Item</th><th class="num">Requested</th><th class="num">In store</th>{% if can_issue %}<th>Issue</th>{% endif %}</tr></thead>
+                        <tbody>
+                            {% for line in requisition.lines.all %}
+                            <tr>
+                                <td>{{ line.drug.name }}</td>
+                                <td class="num">{{ line.quantity_requested }}</td>
+                                <td class="num">{{ line.drug.stock_available }}</td>
+                                {% if can_issue %}<td><input class="input input-narrow" type="number" name="issue_{{ line.pk }}" min="0" max="{{ line.quantity_requested }}" value="{{ line.quantity_requested }}" aria-label="Units of {{ line.drug.name }} to issue"></td>{% endif %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% if can_issue %}
+                    <div class="requisition-actions">
+                        <label class="stacked-field">Response <input class="input" name="response" placeholder="Optional note to the department"></label>
+                        <button type="submit" name="intent" value="reject">Reject</button>
+                        <button type="submit" name="intent" value="issue" class="accented">Issue</button>
+                    </div>
+                    {% endif %}
+                </form>
+                {% empty %}
+                <p class="empty-state">No requisitions are waiting. Departments raise them from the New requisition tab.</p>
+                {% endfor %}
+            </section>
+            <section class="variable-section" id="new_requisition">
+                <form method="post" class="app-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="intent" value="create">
+                    <input type="hidden" name="tab" value="new_requisition">
+                    <div class="form-grid">{% for field in requisition_form %}{% include "utils/_field.html" %}{% endfor %}</div>
+                    {% include "./_line_formset.html" with formset=line_formset caption="Items needed" %}
+                    <div class="form-actions"><button type="submit" class="accented">Send to stores</button></div>
+                </form>
+            </section>
+            <section class="variable-section" id="handled_requisitions">
+                <table class="display datatable" data-empty="Handled requisitions appear here." style="width:100%">
+                    <thead><tr><th>Requisition</th><th>Department</th><th>Requested</th><th>Items</th><th>Status</th><th>Handled by</th><th>Response</th></tr></thead>
+                    <tbody>
+                        {% for requisition in handled %}
+                        <tr>
+                            <td>{{ requisition.requisition_number }}</td>
+                            <td>{{ requisition.get_department_display }}</td>
+                            <td data-order="{{ requisition.requested_on|date:'c' }}">{{ requisition.requested_on|date:"DATE_FORMAT" }}</td>
+                            <td>{% for line in requisition.lines.all %}{{ line.drug.name }} {{ line.quantity_issued }}/{{ line.quantity_requested }}{% if not forloop.last %}; {% endif %}{% endfor %}</td>
+                            <td><span class="status {{ requisition.status|tone }}">{{ requisition.get_status_display }}</span></td>
+                            <td>{{ requisition.handled_by|default:"" }}</td>
+                            <td>{{ requisition.response }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+        </section>
+    </main>
+{% endblock %}

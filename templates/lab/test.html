@@ -1,0 +1,41 @@
+{% extends '../utils/layout.html' %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <a class="button-link accented" href="{% url 'lab:lab-home' %}?tab=test_catalogue"><i class="fa fa-arrow-left"></i>&nbsp;All tests</a>
+            </div>
+            <p class="section-title">{{ test.name }}</p>
+            {% include "utils/_form.html" with form=test_form intent="update_test" submit="Save changes" %}
+
+            <p class="section-title">Parameters</p>
+            <p class="section-subtitle">Add parameters when the test reports several measured values (for example the parts of a full blood count).</p>
+            {% if parameters %}
+            <table class="display" style="width:100%">
+                <thead><tr><th>Parameter</th><th>Units</th><th>Lower limit</th><th>Upper limit</th><th>Normal result</th><th>Normal range</th><th></th></tr></thead>
+                <tbody>
+                    {% for parameter in parameters %}
+                    <tr>
+                        <td>{{ parameter.name }}</td>
+                        <td>{{ parameter.units|default:"" }}</td>
+                        <td>{{ parameter.lower_limit|default_if_none:"" }}</td>
+                        <td>{{ parameter.upper_limit|default_if_none:"" }}</td>
+                        <td>{{ parameter.normal_result|default:"" }}</td>
+                        <td>{{ parameter.dafault_range|default:"" }}</td>
+                        <td>
+                            <form method="post" data-confirm="Remove {{ parameter.name }}?">
+                                {% csrf_token %}
+                                <input type="hidden" name="intent" value="remove_parameter">
+                                <input type="hidden" name="parameter" value="{{ parameter.pk }}">
+                                <button type="submit">Remove</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+            {% include "utils/_form.html" with form=parameter_form intent="add_parameter" submit="Add parameter" %}
+        </section>
+    </main>
+{% endblock %}

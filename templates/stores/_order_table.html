@@ -1,0 +1,17 @@
+{% load hmis %}
+<table class="display datatable" data-empty="{{ empty }}" style="width:100%">
+    <thead><tr><th>Order</th><th>Supplier</th><th>Created</th><th>Expected</th><th class="num">Lines</th><th class="num">Total ({{ currency }})</th><th>Status</th></tr></thead>
+    <tbody>
+        {% for order in orders %}
+        <tr data-href="{% url 'stores:purchase-order' order.pk %}">
+            <td><strong>{{ order.order_number }}</strong></td>
+            <td>{{ order.supplier }}</td>
+            <td data-order="{{ order.created_on|date:'c' }}">{{ order.created_on|date:"DATE_FORMAT" }}</td>
+            <td data-order="{{ order.expected_on|date:'c' }}">{{ order.expected_on|date:"DATE_FORMAT"|default:"" }}</td>
+            <td class="num">{{ order.lines.all|length }}</td>
+            <td class="num">{{ order.total|money }}</td>
+            <td><span class="status {{ order.status|tone }}">{{ order.get_status_display }}</span></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

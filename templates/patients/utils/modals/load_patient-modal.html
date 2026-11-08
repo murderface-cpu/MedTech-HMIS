@@ -1,0 +1,38 @@
+{% load static %}
+
+<div class="modal" id="load_patient_modal" role="dialog" aria-modal="true" aria-labelledby="load_patient_modal_title">
+    <div class="modal-header">
+        <h3 class="modal-title" id="load_patient_modal_title">Select patient</h3>
+        <button type="button" class="icon-button" data-close-modal aria-label="Close"><i class="fa fa-times" aria-hidden="true"></i></button>
+    </div>
+    <div class="modal-body">
+        <div class="modal-section">
+            <div class="section-content">
+                <form class="flex" style="gap: 10px">
+                    <input class="input" type="search" id="load_patient_search" placeholder="Search by name, patient ID, NIN or phone" style="flex: 1" />
+                </form>
+                <table id="load_patient_table" style="width:100%;margin-top:.5rem;">
+                    <thead>
+                        <tr>
+                            <th>Patient ID</th>
+                            <th>Name</th>
+                            <th>Gender</th>
+                            <th>Age</th>
+                            <th>Active visit</th>
+                            <th>Created at</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+                <p class="empty-state" id="load_patient_empty" hidden>No patients found.</p>
+                <div class="flex" style="justify-content: flex-end; gap: 10px; margin-top: .5rem">
+                    <button type="button" id="loadPreviousPatients">Previous</button>
+                    <button type="button" id="loadNextPatients">Next</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" data-close-modal>Close</button>
+    </div>
+</div>

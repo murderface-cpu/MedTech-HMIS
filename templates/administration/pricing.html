@@ -1,0 +1,77 @@
+{% extends '../utils/layout.html' %}
+{% block body_attributes %}data-remember-tab{% endblock %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <button type="button" class="accented section-togglers" data-section="services" data-default>Services</button>
+                <button type="button" class="accented section-togglers" data-section="lab_prices">Laboratory tests</button>
+                <button type="button" class="accented section-togglers" data-section="drug_prices">Drugs</button>
+            </div>
+            <section class="variable-section" id="services">
+                <p class="section-title">Add service</p>
+                {% include "utils/_form.html" with form=service_form intent="add_service" submit="Add service" tab="services" %}
+                {% for group in service_groups %}
+                <p class="section-title">{{ group.label }}</p>
+                {% if group.services %}
+                <table class="display" style="width:100%">
+                    <thead><tr><th>Code</th><th>Service</th><th>Fee ({{ currency }})</th><th>Offered</th><th></th></tr></thead>
+                    <tbody>
+                        {% for service in group.services %}
+                        <tr>
+                            <td>{{ service.code }}</td>
+                            <td>{{ service.name }}</td>
+                            <td>{% include "./_price_form.html" with intent="service_price" pk=service.pk price=service.fee tab="services" %}</td>
+                            <td>{{ service.is_active|yesno:"Yes,No" }}</td>
+                            <td>
+                                <form method="post">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="intent" value="toggle_service">
+                                    <input type="hidden" name="tab" value="services">
+                                    <input type="hidden" name="pk" value="{{ service.pk }}">
+                                    <button type="submit">{% if service.is_active %}Stop offering{% else %}Offer again{% endif %}</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="section-subtitle">No {{ group.label|lower }} priced yet.</p>
+                {% endif %}
+                {% endfor %}
+            </section>
+            <section class="variable-section" id="lab_prices">
+                <p class="section-subtitle">Tests are added in the Laboratory module; set their prices here.</p>
+                <table class="display datatable" style="width:100%">
+                    <thead><tr><th>Test</th><th>Category</th><th>Price</th></tr></thead>
+                    <tbody>
+                        {% for test in lab_tests %}
+                        <tr>
+                            <td>{{ test.name }}</td>
+                            <td>{{ test.category }}</td>
+                            <td>{% include "./_price_form.html" with intent="lab_test_price" pk=test.pk price=test.price tab="lab_prices" %}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+            <section class="variable-section" id="drug_prices">
+                <p class="section-subtitle">Drugs are added in the Inventory module; set their selling prices here.</p>
+                <table class="display datatable" style="width:100%">
+                    <thead><tr><th>Drug no.</th><th>Drug</th><th>Category</th><th>Unit price ({{ currency }})</th></tr></thead>
+                    <tbody>
+                        {% for drug in drugs %}
+                        <tr>
+                            <td>{{ drug.drug_number }}</td>
+                            <td>{{ drug.name }}</td>
+                            <td>{{ drug.category }}</td>
+                            <td>{% include "./_price_form.html" with intent="drug_price" pk=drug.pk price=drug.unit_price tab="drug_prices" %}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+        </section>
+    </main>
+{% endblock %}

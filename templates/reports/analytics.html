@@ -1,0 +1,86 @@
+{% extends '../utils/layout.html' %}
+{% load hmis %}
+{% block content %}
+    <main class="overview">
+        <form method="get" class="filters report-filters">
+            <fieldset class="segmented" aria-label="Period">
+                {% for value, label in periods %}
+                <label><input type="radio" name="period" value="{{ value }}" {% if period == value %}checked{% endif %} data-auto-submit><span>{{ label }}</span></label>
+                {% endfor %}
+            </fieldset>
+            <label>From <input class="input" type="date" name="start" value="{% if period == 'custom' %}{{ start|date:'Y-m-d' }}{% endif %}"></label>
+            <label>To <input class="input" type="date" name="end" value="{% if period == 'custom' %}{{ end|date:'Y-m-d' }}{% endif %}"></label>
+            <button type="submit">Show dates</button>
+            <a class="button-link" href="?{% if period == 'custom' %}start={{ start|date:'Y-m-d' }}&amp;end={{ end|date:'Y-m-d' }}{% else %}period={{ period }}{% endif %}&amp;format=csv"><i class="fa fa-download" aria-hidden="true"></i> Daily figures (CSV)</a>
+        </form>
+        <p class="overview-lede">{{ start|date:"j F Y" }} to {{ end|date:"j F Y" }}, {{ span }} day{{ span|pluralize }}. Changes compare with {{ prior_label }}.</p>
+
+        <div class="stat-strip">
+            {% for item in summary %}
+            <div class="stat">
+                <span class="stat-label">{{ item.label }}</span>
+                <span class="stat-value">{{ item.value }}</span>
+                {% if item.change %}<span class="stat-note is-{{ item.change.direction }}">{{ item.change.text }}</span>{% endif %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="panel-grid">
+            <section class="panel is-full" aria-labelledby="a-visits">
+                <header class="panel-head">
+                    <h2 id="a-visits">Visits per day</h2>
+                    <p class="help-text">Busiest: {{ visit_chart.peak.0|date:"D j M" }}, {{ visit_chart.peak.1 }} visits. Average {{ visit_chart.average|floatformat:0 }} a day.</p>
+                </header>
+                {% include "./_columns.html" with chart=visit_chart name="visits" %}
+            </section>
+            <section class="panel is-full" aria-labelledby="a-money">
+                <header class="panel-head">
+                    <h2 id="a-money">Money received per day ({{ currency }})</h2>
+                    <p class="help-text">{{ currency }} {{ money_chart.total|money }} in total, {{ currency }} {{ money_chart.average|money }} a day on average</p>
+                </header>
+                {% include "./_columns.html" with chart=money_chart name="received" unit=currency %}
+            </section>
+            <section class="panel" aria-labelledby="a-streams">
+                <header class="panel-head"><h2 id="a-streams">Billed by department ({{ currency }})</h2></header>
+                {% include "./_bars.html" with bars=streams empty="Nothing billed in this period." show_share=True %}
+            </section>
+            <section class="panel" aria-labelledby="a-payers">
+                <header class="panel-head"><h2 id="a-payers">Who pays ({{ currency }})</h2></header>
+                {% include "./_bars.html" with bars=payers empty="Nothing billed in this period." show_share=True %}
+            </section>
+            <section class="panel" aria-labelledby="a-workload">
+                <header class="panel-head"><h2 id="a-workload">Workload by service</h2></header>
+                {% include "./_bars.html" with bars=workload empty="No activity in this period." %}
+            </section>
+            <section class="panel" aria-labelledby="a-diagnoses">
+                <header class="panel-head"><h2 id="a-diagnoses">Top diagnoses</h2></header>
+                {% include "./_bars.html" with bars=diagnoses empty="No diagnoses recorded in this period." %}
+            </section>
+            <section class="panel" aria-labelledby="a-tests">
+                <header class="panel-head"><h2 id="a-tests">Most requested lab tests</h2></header>
+                {% include "./_bars.html" with bars=lab_tests empty="No lab tests requested in this period." %}
+            </section>
+            <section class="panel" aria-labelledby="a-ages">
+                <header class="panel-head">
+                    <h2 id="a-ages">Visits by age and sex</h2>
+                    <ul class="legend" role="list">
+                        <li><span class="swatch is-female" aria-hidden="true"></span>Female</li>
+                        <li><span class="swatch is-male" aria-hidden="true"></span>Male</li>
+                    </ul>
+                </header>
+                <table class="pyramid">
+                    <thead><tr><th scope="col" class="num">Female</th><th scope="col">Age</th><th scope="col">Male</th></tr></thead>
+                    <tbody>
+                        {% for band in age_gender %}
+                        <tr>
+                            <td class="pyramid-left"><span class="pyramid-value">{{ band.female }}</span><span class="pyramid-bar is-female" style="--w: {{ band.female_width }}%"></span></td>
+                            <th scope="row">{{ band.label }}</th>
+                            <td class="pyramid-right"><span class="pyramid-bar is-male" style="--w: {{ band.male_width }}%"></span><span class="pyramid-value">{{ band.male }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+        </div>
+    </main>
+{% endblock %}

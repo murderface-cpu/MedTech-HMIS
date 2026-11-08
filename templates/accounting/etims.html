@@ -1,0 +1,55 @@
+{% extends '../utils/layout.html' %}
+{% load hmis %}
+{% block body_attributes %}data-remember-tab{% endblock %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <button type="button" class="accented section-togglers" data-section="etims_pending" data-default>Not transmitted ({{ to_submit|length }})</button>
+                <button type="button" class="accented section-togglers" data-section="etims_failed">Failed ({{ failed|length }})</button>
+                <button type="button" class="accented section-togglers" data-section="etims_submitted">Accepted</button>
+            </div>
+            <p class="help-text">Paid invoices must be transmitted to KRA eTIMS. The direct connection to the KRA virtual sales control unit is not set up yet: transmit each invoice on the eTIMS portal, then record the control unit invoice number here.</p>
+            <section class="variable-section" id="etims_pending">
+                {% include "./_etims_rows.html" with invoices=to_submit tab="etims_pending" empty="Every paid invoice is transmitted." %}
+            </section>
+            <section class="variable-section" id="etims_failed">
+                {% if failed %}
+                <table class="display" style="width:100%">
+                    <thead><tr><th>Invoice</th><th>Patient</th><th>Error</th><th>Recorded</th><th>Record again</th></tr></thead>
+                    <tbody>
+                        {% for submission in failed %}
+                        <tr>
+                            <td><a href="{% url 'finance:finance-invoice' submission.invoice_id %}">{{ submission.invoice.invoice_number }}</a></td>
+                            <td>{{ submission.invoice.patient }}</td>
+                            <td><span class="status tone-bad">{{ submission.error_message }}</span></td>
+                            <td>{{ submission.created_on|date:"j M, H:i" }}</td>
+                            <td>{% include "./_etims_form.html" with invoice=submission.invoice tab="etims_failed" %}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="empty-state">No failed transmissions.</p>
+                {% endif %}
+            </section>
+            <section class="variable-section" id="etims_submitted">
+                <table class="display datatable" data-empty="Accepted invoices appear here." style="width:100%">
+                    <thead><tr><th>Invoice</th><th>Patient</th><th class="num">Total ({{ currency }})</th><th>Control unit number</th><th>Recorded</th><th>By</th></tr></thead>
+                    <tbody>
+                        {% for submission in submitted %}
+                        <tr>
+                            <td>{{ submission.invoice.invoice_number }}</td>
+                            <td>{{ submission.invoice.patient }}</td>
+                            <td class="num">{{ submission.invoice.total|money }}</td>
+                            <td><strong>{{ submission.cu_invoice_number }}</strong></td>
+                            <td data-order="{{ submission.created_on|date:'c' }}">{{ submission.created_on|date:"DATETIME_FORMAT" }}</td>
+                            <td>{{ submission.submitted_by|default:"" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+        </section>
+    </main>
+{% endblock %}

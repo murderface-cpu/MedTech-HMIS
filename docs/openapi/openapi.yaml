@@ -1,0 +1,2709 @@
+openapi: 3.0.2
+info:
+  title: MedSafe HMIS API
+  version: v1
+paths:
+  /api/v1/:
+    get:
+      operationId: listApiRoots
+      description: Entry point of the versioned API; the frontend reads its URL to
+        build every request.
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items: {}
+          description: ''
+      tags:
+      - api
+  /api/v1/patients/:
+    get:
+      operationId: listPatients
+      description: ''
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                    example: 123
+                  next:
+                    type: string
+                    nullable: true
+                    format: uri
+                    example: http://api.example.org/accounts/?page=4
+                  previous:
+                    type: string
+                    nullable: true
+                    format: uri
+                    example: http://api.example.org/accounts/?page=2
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Patient'
+          description: ''
+      tags:
+      - api
+  /api/v1/patients/{patient_id}/:
+    get:
+      operationId: retrievePatient
+      description: ''
+      parameters:
+      - name: patient_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Patient'
+          description: ''
+      tags:
+      - api
+  /api/v1/nextOfKin/{id}/:
+    get:
+      operationId: retrieveNextOfKin
+      description: Next of kin of the patient with primary key `pk`.
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this next of kin.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatientNok'
+          description: ''
+      tags:
+      - api
+  /api/v1/visits/:
+    get:
+      operationId: listVisits
+      description: Active visits. ?mine=1 keeps the visits assigned to the signed-in
+        doctor.
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: page_size
+        required: false
+        in: query
+        description: Number of results to return per page.
+        schema:
+          type: integer
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  count:
+                    type: integer
+                    example: 123
+                  next:
+                    type: string
+                    nullable: true
+                    format: uri
+                    example: http://api.example.org/accounts/?page=4
+                  previous:
+                    type: string
+                    nullable: true
+                    format: uri
+                    example: http://api.example.org/accounts/?page=2
+                  results:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Visit'
+          description: ''
+      tags:
+      - api
+  /api/v1/visits/{id}:
+    get:
+      operationId: retrieveVisit
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this visit.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Visit'
+          description: ''
+      tags:
+      - api
+  /api/v1/patients/{patient_id}/visit/:
+    get:
+      operationId: listVisits
+      description: ''
+      parameters:
+      - name: patient_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Visit'
+          description: ''
+      tags:
+      - api
+  /api/v1/visit/{id}/triage/:
+    get:
+      operationId: listTriages
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this triage.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Triage'
+          description: ''
+      tags:
+      - api
+  /api/v1/visit/{id}/patient/:
+    get:
+      operationId: retrievePatient
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this patient.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Patient'
+          description: ''
+      tags:
+      - api
+  /api/v1/triage/:
+    get:
+      operationId: listTriages
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Triage'
+          description: ''
+      tags:
+      - api
+  /api/v1/triage/{id}:
+    get:
+      operationId: retrieveTriage
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this triage.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Triage'
+          description: ''
+      tags:
+      - api
+  /api/v1/triage/{patient_id}/patient/:
+    get:
+      operationId: listTriages
+      description: ''
+      parameters:
+      - name: patient_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Triage'
+          description: ''
+      tags:
+      - api
+  /api/v1/allergy/:
+    get:
+      operationId: listAllergys
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Allergy'
+          description: ''
+      tags:
+      - api
+  /api/v1/allergy/{id}:
+    get:
+      operationId: retrieveAllergy
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this allergy.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Allergy'
+          description: ''
+      tags:
+      - api
+  /api/v1/allergy/{patient_id}/patient/:
+    get:
+      operationId: listAllergys
+      description: ''
+      parameters:
+      - name: patient_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Allergy'
+          description: ''
+      tags:
+      - api
+  /api/v1/generalfindings/:
+    get:
+      operationId: listGeneralFindings
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GeneralFindings'
+          description: ''
+      tags:
+      - api
+  /api/v1/generalfindings/{id}:
+    get:
+      operationId: retrieveGeneralFinding
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this general finding.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralFindings'
+          description: ''
+      tags:
+      - api
+  /api/v1/generalfindings/{patient_id}/patient/:
+    get:
+      operationId: listGeneralFindings
+      description: ''
+      parameters:
+      - name: patient_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GeneralFindings'
+          description: ''
+      tags:
+      - api
+  /api/v1/generalfindings/{visit_id}/visit/:
+    get:
+      operationId: listGeneralFindings
+      description: ''
+      parameters:
+      - name: visit_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GeneralFindings'
+          description: ''
+      tags:
+      - api
+  /api/v1/paedeatricnotes/:
+    get:
+      operationId: listPaedeatricNotes
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PaedeatricNote'
+          description: ''
+      tags:
+      - api
+  /api/v1/paedeatricnotes/{id}:
+    get:
+      operationId: retrievePaedeatricNote
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this paedeatric note.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaedeatricNote'
+          description: ''
+      tags:
+      - api
+  /api/v1/paedeatricnotes/{patient_id}/patient/:
+    get:
+      operationId: listPaedeatricNotes
+      description: ''
+      parameters:
+      - name: patient_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PaedeatricNote'
+          description: ''
+      tags:
+      - api
+  /api/v1/paedeatricnotes/{visit_id}/visit/:
+    get:
+      operationId: listPaedeatricNotes
+      description: ''
+      parameters:
+      - name: visit_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PaedeatricNote'
+          description: ''
+      tags:
+      - api
+  /api/v1/gynnotes/:
+    get:
+      operationId: listGynNotes
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GynNote'
+          description: ''
+      tags:
+      - api
+  /api/v1/gynnotes/{id}:
+    get:
+      operationId: retrieveGynNote
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this gyn note.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GynNote'
+          description: ''
+      tags:
+      - api
+  /api/v1/gynnotes/{patient_id}/patient/:
+    get:
+      operationId: listGynNotes
+      description: ''
+      parameters:
+      - name: patient_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GynNote'
+          description: ''
+      tags:
+      - api
+  /api/v1/gynnotes/{visit_id}/visit/:
+    get:
+      operationId: listGynNotes
+      description: ''
+      parameters:
+      - name: visit_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GynNote'
+          description: ''
+      tags:
+      - api
+  /api/v1/diagnosis/{visit_id}/visit/:
+    get:
+      operationId: listDiagnosis
+      description: ''
+      parameters:
+      - name: visit_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Diagnosis'
+          description: ''
+      tags:
+      - api
+  /api/v1/drugs/:
+    get:
+      operationId: listDrugs
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Drug'
+          description: ''
+      tags:
+      - api
+  /api/v1/prescriptions/{visit_id}/visit/:
+    get:
+      operationId: listPrescriptions
+      description: ''
+      parameters:
+      - name: visit_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Prescription'
+          description: ''
+      tags:
+      - api
+  /api/v1/services/:
+    get:
+      operationId: listServices
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Service'
+          description: ''
+      tags:
+      - api
+  /api/v1/visitservices/{visit_id}/visit/:
+    get:
+      operationId: listVisitServices
+      description: ''
+      parameters:
+      - name: visit_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/VisitService'
+          description: ''
+      tags:
+      - api
+  /api/v1/departmentrequests/{visit_id}/visit/:
+    get:
+      operationId: listDepartmentRequests
+      description: ''
+      parameters:
+      - name: visit_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DepartmentRequest'
+          description: ''
+      tags:
+      - api
+  /api/v1/lab/requests/:
+    get:
+      operationId: listRequests
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LabRequest'
+          description: ''
+      tags:
+      - api
+  /api/v1/lab/requests/{id}:
+    get:
+      operationId: retrieveRequest
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this request.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LabRequest'
+          description: ''
+      tags:
+      - api
+  /api/v1/lab/requests/{patient_id}/patient/:
+    get:
+      operationId: listRequests
+      description: ''
+      parameters:
+      - name: patient_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LabRequest'
+          description: ''
+      tags:
+      - api
+  /api/v1/lab/requests/{id}/visit/:
+    get:
+      operationId: listRequests
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this request.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LabRequest'
+          description: ''
+      tags:
+      - api
+  /api/v1/lab/requests/{category}/category/:
+    get:
+      operationId: listRequests
+      description: ''
+      parameters:
+      - name: category
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LabRequest'
+          description: ''
+      tags:
+      - api
+  /api/v1/lab/tests/:
+    get:
+      operationId: listLabTests
+      description: ''
+      parameters: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LabTest'
+          description: ''
+      tags:
+      - api
+  /api/v1/lab/tests/{id}:
+    get:
+      operationId: retrieveLabTest
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this lab test.
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LabTest'
+          description: ''
+      tags:
+      - api
+  /api/v1/lab/tests/{id}/request/:
+    get:
+      operationId: listAssignedLabTests
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AssignedLabTest'
+          description: ''
+      tags:
+      - api
+  /api/v1/lab/tests/{category}/:
+    get:
+      operationId: retrieveLabTest
+      description: ''
+      parameters:
+      - name: category
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LabTest'
+          description: ''
+      tags:
+      - api
+  /api/v1/patients/create/:
+    post:
+      operationId: createPatient
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Patient'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Patient'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Patient'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Patient'
+          description: ''
+      tags:
+      - api
+  /api/v1/patients/create/nextOfKin/:
+    post:
+      operationId: createNextOfKin
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatientNok'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatientNok'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatientNok'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatientNok'
+          description: ''
+      tags:
+      - api
+  /api/v1/visits/create/:
+    post:
+      operationId: createVisit
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Visit'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Visit'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Visit'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Visit'
+          description: ''
+      tags:
+      - api
+  /api/v1/triage/create/:
+    post:
+      operationId: createTriage
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Triage'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Triage'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Triage'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Triage'
+          description: ''
+      tags:
+      - api
+  /api/v1/allergy/create/:
+    post:
+      operationId: createAllergy
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Allergy'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Allergy'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Allergy'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Allergy'
+          description: ''
+      tags:
+      - api
+  /api/v1/generalfindings/create/:
+    post:
+      operationId: createGeneralFinding
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GeneralFindings'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/GeneralFindings'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/GeneralFindings'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralFindings'
+          description: ''
+      tags:
+      - api
+  /api/v1/paedeatricnotes/create/:
+    post:
+      operationId: createPaedeatricNote
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaedeatricNote'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PaedeatricNote'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PaedeatricNote'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaedeatricNote'
+          description: ''
+      tags:
+      - api
+  /api/v1/gynnotes/create/:
+    post:
+      operationId: createGynNote
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GynNote'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/GynNote'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/GynNote'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GynNote'
+          description: ''
+      tags:
+      - api
+  /api/v1/diagnosis/create/:
+    post:
+      operationId: createDiagnosis
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Diagnosis'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Diagnosis'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Diagnosis'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Diagnosis'
+          description: ''
+      tags:
+      - api
+  /api/v1/prescriptions/create/:
+    post:
+      operationId: createPrescription
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Prescription'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Prescription'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Prescription'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Prescription'
+          description: ''
+      tags:
+      - api
+  /api/v1/visitservices/create/:
+    post:
+      operationId: createVisitService
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VisitService'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/VisitService'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/VisitService'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VisitService'
+          description: ''
+      tags:
+      - api
+  /api/v1/departmentrequests/create/:
+    post:
+      operationId: createDepartmentRequest
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DepartmentRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/DepartmentRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/DepartmentRequest'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepartmentRequest'
+          description: ''
+      tags:
+      - api
+  /api/v1/lab/requests/create/:
+    post:
+      operationId: createRequest
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LabRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LabRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LabRequest'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LabRequest'
+          description: ''
+      tags:
+      - api
+  /api/v1/lab/tests/create/:
+    post:
+      operationId: createLabTest
+      description: ''
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LabTest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LabTest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LabTest'
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LabTest'
+          description: ''
+      tags:
+      - api
+  /api/v1/patients/{patient_id}/update/:
+    put:
+      operationId: updatePatient
+      description: ''
+      parameters:
+      - name: patient_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Patient'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Patient'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Patient'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Patient'
+          description: ''
+      tags:
+      - api
+    patch:
+      operationId: partialUpdatePatient
+      description: ''
+      parameters:
+      - name: patient_id
+        in: path
+        required: true
+        description: ''
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Patient'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Patient'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Patient'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Patient'
+          description: ''
+      tags:
+      - api
+  /api/v1/nextOfKin/{id}/update/:
+    put:
+      operationId: updateNextOfKin
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this next of kin.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatientNok'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatientNok'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatientNok'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatientNok'
+          description: ''
+      tags:
+      - api
+    patch:
+      operationId: partialUpdateNextOfKin
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this next of kin.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatientNok'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatientNok'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatientNok'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatientNok'
+          description: ''
+      tags:
+      - api
+  /api/v1/visits/{id}/update:
+    put:
+      operationId: updateVisit
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this visit.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Visit'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Visit'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Visit'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Visit'
+          description: ''
+      tags:
+      - api
+    patch:
+      operationId: partialUpdateVisit
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this visit.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Visit'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Visit'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Visit'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Visit'
+          description: ''
+      tags:
+      - api
+  /api/v1/triage/{id}/update/:
+    put:
+      operationId: updateTriage
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this triage.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Triage'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Triage'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Triage'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Triage'
+          description: ''
+      tags:
+      - api
+    patch:
+      operationId: partialUpdateTriage
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this triage.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Triage'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Triage'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Triage'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Triage'
+          description: ''
+      tags:
+      - api
+  /api/v1/allergy/{id}/update/:
+    put:
+      operationId: updateAllergy
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this allergy.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Allergy'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Allergy'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Allergy'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Allergy'
+          description: ''
+      tags:
+      - api
+    patch:
+      operationId: partialUpdateAllergy
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this allergy.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Allergy'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Allergy'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Allergy'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Allergy'
+          description: ''
+      tags:
+      - api
+  /api/v1/generalfindings/{id}/update/:
+    put:
+      operationId: updateGeneralFinding
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this general finding.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GeneralFindings'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/GeneralFindings'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/GeneralFindings'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralFindings'
+          description: ''
+      tags:
+      - api
+    patch:
+      operationId: partialUpdateGeneralFinding
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this general finding.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GeneralFindings'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/GeneralFindings'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/GeneralFindings'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GeneralFindings'
+          description: ''
+      tags:
+      - api
+  /api/v1/paedeatricnotes/{id}/update/:
+    put:
+      operationId: updatePaedeatricNote
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this paedeatric note.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaedeatricNote'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PaedeatricNote'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PaedeatricNote'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaedeatricNote'
+          description: ''
+      tags:
+      - api
+    patch:
+      operationId: partialUpdatePaedeatricNote
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this paedeatric note.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaedeatricNote'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PaedeatricNote'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PaedeatricNote'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaedeatricNote'
+          description: ''
+      tags:
+      - api
+  /api/v1/gynnotes/{id}/update/:
+    put:
+      operationId: updateGynNote
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this gyn note.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GynNote'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/GynNote'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/GynNote'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GynNote'
+          description: ''
+      tags:
+      - api
+    patch:
+      operationId: partialUpdateGynNote
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this gyn note.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GynNote'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/GynNote'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/GynNote'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GynNote'
+          description: ''
+      tags:
+      - api
+  /api/v1/lab/requests/{id}/update/:
+    put:
+      operationId: updateRequest
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this request.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LabRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LabRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LabRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LabRequest'
+          description: ''
+      tags:
+      - api
+    patch:
+      operationId: partialUpdateRequest
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this request.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LabRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LabRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LabRequest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LabRequest'
+          description: ''
+      tags:
+      - api
+  /api/v1/lab/tests/{id}/update/:
+    put:
+      operationId: updateLabTest
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this lab test.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LabTest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LabTest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LabTest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LabTest'
+          description: ''
+      tags:
+      - api
+    patch:
+      operationId: partialUpdateLabTest
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this lab test.
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LabTest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LabTest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LabTest'
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LabTest'
+          description: ''
+      tags:
+      - api
+  /api/v1/allergy/{id}/delete/:
+    delete:
+      operationId: destroyAllergy
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this allergy.
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+      tags:
+      - api
+  /api/v1/diagnosis/{id}/delete/:
+    delete:
+      operationId: destroyDiagnosis
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this diagnosis.
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+      tags:
+      - api
+  /api/v1/prescriptions/{id}/delete/:
+    delete:
+      operationId: destroyPrescription
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this prescription.
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+      tags:
+      - api
+  /api/v1/visitservices/{id}/delete/:
+    delete:
+      operationId: destroyVisitService
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this visit service.
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+      tags:
+      - api
+  /api/v1/departmentrequests/{id}/delete/:
+    delete:
+      operationId: destroyDepartmentRequest
+      description: ''
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: A unique integer value identifying this department request.
+        schema:
+          type: string
+      responses:
+        '204':
+          description: ''
+      tags:
+      - api
+components:
+  schemas:
+    Patient:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        firstname:
+          type: string
+          maxLength: 256
+        middlename:
+          type: string
+          nullable: true
+          maxLength: 256
+        lastname:
+          type: string
+          maxLength: 256
+        age:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        date_of_birth:
+          type: string
+          format: date-time
+          nullable: true
+        nin:
+          type: string
+          nullable: true
+          maxLength: 256
+        gender:
+          enum:
+          - Male
+          - Female
+          type: string
+        telnumber:
+          type: string
+          maxLength: 256
+        alttelnumber:
+          type: string
+          nullable: true
+          maxLength: 256
+        email:
+          type: string
+          format: email
+          nullable: true
+          maxLength: 254
+        address:
+          type: string
+          nullable: true
+          maxLength: 256
+        slug:
+          type: string
+          readOnly: true
+          nullable: true
+          pattern: ^[-a-zA-Z0-9_]+$
+        created_on:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_on:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        patient_id:
+          type: string
+          readOnly: true
+          nullable: true
+      required:
+      - firstname
+      - lastname
+      - gender
+      - telnumber
+    PatientNok:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        patient:
+          type: integer
+        firstname:
+          type: string
+          maxLength: 256
+        middlename:
+          type: string
+          nullable: true
+          maxLength: 256
+        lastname:
+          type: string
+          maxLength: 256
+        age:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+          nullable: true
+        date_of_birth:
+          type: string
+          format: date-time
+          nullable: true
+        nin:
+          type: string
+          nullable: true
+          maxLength: 256
+        gender:
+          enum:
+          - Male
+          - Female
+          type: string
+        telnumber:
+          type: string
+          maxLength: 256
+        alttelnumber:
+          type: string
+          nullable: true
+          maxLength: 256
+        email:
+          type: string
+          format: email
+          nullable: true
+          maxLength: 254
+        address:
+          type: string
+          nullable: true
+          maxLength: 256
+        slug:
+          type: string
+          readOnly: true
+          nullable: true
+          pattern: ^[-a-zA-Z0-9_]+$
+        created_on:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_on:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        relationship:
+          enum:
+          - Husband
+          - Wife
+          - Father
+          - Mother
+          - Brother
+          - Sister
+          - Son
+          - Daughter
+          - Guardian
+          - Other
+          type: string
+      required:
+      - patient
+      - firstname
+      - lastname
+      - gender
+      - telnumber
+      - relationship
+    Visit:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        patient:
+          type: integer
+        billing_type:
+          type: integer
+          writeOnly: true
+          nullable: true
+        insurance_company:
+          type: integer
+          writeOnly: true
+          nullable: true
+        account_company:
+          type: integer
+          writeOnly: true
+          nullable: true
+        visit_id:
+          type: string
+          readOnly: true
+          nullable: true
+        complete:
+          type: boolean
+        updated_on:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+        created_on:
+          type: string
+          format: date-time
+          readOnly: true
+        visit_date:
+          type: string
+          format: date-time
+        doctor:
+          type: integer
+          nullable: true
+        category:
+          type: integer
+        speciality:
+          type: integer
+          nullable: true
+        billing:
+          type: string
+          readOnly: true
+          nullable: true
+      required:
+      - patient
+      - category
+    Triage:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        visit:
+          type: integer
+        blood_pressure:
+          type: string
+          nullable: true
+          maxLength: 16
+        heart_rate:
+          type: string
+          format: decimal
+          multipleOf: 0.01
+          maximum: 10000
+          minimum: -10000
+          nullable: true
+        respiratory_rate:
+          type: string
+          format: decimal
+          multipleOf: 0.01
+          maximum: 10000
+          minimum: -10000
+          nullable: true
+        temperature:
+          type: string
+          format: decimal
+          multipleOf: 0.01
+          maximum: 10000
+          minimum: -10000
+          nullable: true
+        weight:
+          type: string
+          format: decimal
+          multipleOf: 0.01
+          maximum: 10000
+          minimum: -10000
+          nullable: true
+        height:
+          type: string
+          format: decimal
+          multipleOf: 0.01
+          maximum: 10000
+          minimum: -10000
+          nullable: true
+        oxygen_saturation:
+          type: string
+          format: decimal
+          multipleOf: 0.01
+          maximum: 10000
+          minimum: -10000
+          nullable: true
+        MUAC:
+          type: string
+          format: decimal
+          multipleOf: 0.01
+          maximum: 10000
+          minimum: -10000
+          nullable: true
+        sign_symptoms:
+          type: string
+          nullable: true
+        injury_details:
+          type: string
+          nullable: true
+        created_on:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_on:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+      required:
+      - visit
+    Allergy:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        patient:
+          type: integer
+        name:
+          type: string
+          nullable: true
+          maxLength: 256
+        comment:
+          type: string
+          nullable: true
+        created_on:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_on:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+      required:
+      - patient
+    GeneralFindings:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        visit:
+          type: integer
+        presenting_complaints:
+          type: string
+          nullable: true
+          maxLength: 256
+        clinical_notes:
+          type: string
+          nullable: true
+          maxLength: 256
+        rohs:
+          type: string
+          nullable: true
+          maxLength: 256
+        psh:
+          type: string
+          nullable: true
+          maxLength: 256
+        poh:
+          type: string
+          nullable: true
+          maxLength: 256
+        cvs:
+          type: string
+          nullable: true
+          maxLength: 256
+        general_appearance:
+          type: string
+          nullable: true
+          maxLength: 256
+        respiratory:
+          type: string
+          nullable: true
+          maxLength: 256
+        ent:
+          type: string
+          nullable: true
+          maxLength: 256
+        abdomen_and_Gut:
+          type: string
+          nullable: true
+          maxLength: 256
+        cns:
+          type: string
+          nullable: true
+          maxLength: 256
+        eye:
+          type: string
+          nullable: true
+          maxLength: 256
+        muscular_skeletal:
+          type: string
+          nullable: true
+          maxLength: 256
+        skin:
+          type: string
+          nullable: true
+          maxLength: 256
+        pv_pr:
+          type: string
+          nullable: true
+          maxLength: 256
+        psychological_status:
+          type: string
+          nullable: true
+          maxLength: 256
+        provisional_status:
+          type: string
+          nullable: true
+          maxLength: 256
+        treatment_plan:
+          type: string
+          nullable: true
+          maxLength: 256
+        created_on:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_on:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+      required:
+      - visit
+    PaedeatricNote:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        visit:
+          type: integer
+        notes:
+          type: string
+          nullable: true
+          maxLength: 256
+        created_on:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_on:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+      required:
+      - visit
+    GynNote:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        visit:
+          type: integer
+        notes:
+          type: string
+          nullable: true
+          maxLength: 256
+        created_on:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_on:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+      required:
+      - visit
+    Diagnosis:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        visit:
+          type: integer
+        diagnosis:
+          type: string
+          maxLength: 256
+        notes:
+          type: string
+          nullable: true
+        created_on:
+          type: string
+          format: date-time
+          readOnly: true
+        created_by:
+          type: string
+          readOnly: true
+          nullable: true
+      required:
+      - visit
+      - diagnosis
+    Drug:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        drug_number:
+          type: string
+          nullable: true
+          maxLength: 64
+        name:
+          type: string
+          maxLength: 256
+        category:
+          type: integer
+        unit_price:
+          type: string
+          format: decimal
+          multipleOf: 0.01
+          maximum: 1000000000000
+          minimum: -1000000000000
+      required:
+      - name
+      - category
+      - unit_price
+    Prescription:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        visit:
+          type: integer
+        drug:
+          type: integer
+        dosage:
+          type: string
+          maxLength: 128
+        duration:
+          type: string
+          nullable: true
+          maxLength: 128
+        quantity:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        notes:
+          type: string
+          nullable: true
+        unit_price:
+          type: string
+          format: decimal
+          multipleOf: 0.01
+          maximum: 1000000000000
+          minimum: -1000000000000
+          readOnly: true
+        quantity_issued:
+          type: integer
+          readOnly: true
+        prescribed_by:
+          type: string
+          readOnly: true
+          nullable: true
+        created_on:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - visit
+      - drug
+      - dosage
+      - quantity
+    Service:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        code:
+          type: string
+          nullable: true
+          maxLength: 64
+        name:
+          type: string
+          maxLength: 256
+        category:
+          enum:
+          - consultation
+          - procedure
+          - dental
+          - cardiology
+          - radiology
+          - theatre
+          - eye
+          - other
+          type: string
+        fee:
+          type: string
+          format: decimal
+          multipleOf: 0.01
+          maximum: 1000000000000
+          minimum: -1000000000000
+      required:
+      - name
+      - category
+      - fee
+    VisitService:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        visit:
+          type: integer
+        service:
+          type: integer
+        quantity:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        price:
+          type: string
+          format: decimal
+          multipleOf: 0.01
+          maximum: 1000000000000
+          minimum: -1000000000000
+          readOnly: true
+        notes:
+          type: string
+          nullable: true
+        ordered_by:
+          type: string
+          readOnly: true
+          nullable: true
+        created_on:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - visit
+      - service
+    DepartmentRequest:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        department:
+          enum:
+          - cardiology
+          - radiology
+          type: string
+        visit:
+          type: integer
+        service:
+          type: integer
+        price:
+          type: string
+          format: decimal
+          multipleOf: 0.01
+          maximum: 1000000000000
+          minimum: -1000000000000
+          readOnly: true
+        narration:
+          type: string
+          nullable: true
+        status:
+          enum:
+          - pending
+          - completed
+          type: string
+          readOnly: true
+        requested_by:
+          type: string
+          readOnly: true
+          nullable: true
+        created_on:
+          type: string
+          format: date-time
+          readOnly: true
+        result:
+          type: string
+          readOnly: true
+          nullable: true
+        reference_range:
+          type: string
+          readOnly: true
+          nullable: true
+        comments:
+          type: string
+          readOnly: true
+          nullable: true
+        reported_by:
+          type: string
+          readOnly: true
+          nullable: true
+        reported_on:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+      required:
+      - department
+      - visit
+      - service
+    LabRequest:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        visit:
+          type: integer
+        created_on:
+          type: string
+          format: date-time
+        updated_on:
+          type: string
+          format: date-time
+          nullable: true
+        handled:
+          type: boolean
+        category:
+          type: integer
+          nullable: true
+        doctor:
+          type: integer
+          nullable: true
+        attendant:
+          type: integer
+          nullable: true
+      required:
+      - visit
+    LabTest:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 256
+        description:
+          type: string
+          nullable: true
+        dafault_range:
+          type: string
+          nullable: true
+        price:
+          type: string
+          format: decimal
+          multipleOf: 0.001
+          maximum: 1000000
+          minimum: -1000000
+          nullable: true
+        currency:
+          type: string
+          maxLength: 5
+        created_on:
+          type: string
+          format: date-time
+        updated_on:
+          type: string
+          format: date-time
+          nullable: true
+        has_subtest:
+          type: boolean
+        category:
+          type: integer
+      required:
+      - name
+      - category
+    AssignedLabTest:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        price:
+          type: string
+          format: decimal
+          multipleOf: 0.001
+          maximum: 1000000
+          minimum: -1000000
+          nullable: true
+        naration:
+          type: string
+          nullable: true
+        updated_on:
+          type: string
+          format: date-time
+          nullable: true
+        request:
+          type: integer
+          nullable: true
+        test:
+          type: integer
+      required:
+      - test

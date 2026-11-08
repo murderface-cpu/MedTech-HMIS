@@ -1,0 +1,66 @@
+{% extends '../utils/layout.html' %}
+{% block body_attributes %}data-remember-tab{% endblock %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <button type="button" class="accented section-togglers" data-section="archive" data-default>Archive ({{ image_count }} files)</button>
+                <button type="button" class="accented section-togglers" data-section="upload_image">Upload images</button>
+            </div>
+            <section class="variable-section" id="archive">
+                <form method="get" class="filters">
+                    <input type="hidden" name="tab" value="archive">
+                    <label>Find <input class="input" type="search" name="q" value="{{ query }}" placeholder="Patient, patient ID or examination"></label>
+                    <button type="submit" class="accented">Search</button>
+                    {% if query %}<a class="button-link" href="{% url 'departments:image-archive' %}">Clear</a>{% endif %}
+                </form>
+                {% for exam in exams %}
+                <section class="exam-panel" aria-labelledby="exam-{{ exam.pk }}">
+                    <header class="exam-panel-head">
+                        <div>
+                            <h2 id="exam-{{ exam.pk }}">{{ exam.service.name }}</h2>
+                            <p class="help-text">{{ exam.visit.patient }} ({{ exam.visit.patient.patient_id }}) &middot; requested {{ exam.created_on|date:"DATE_FORMAT" }}</p>
+                        </div>
+                        <a class="button-link" href="{% url 'departments:departments-report' 'radiology' exam.pk %}">{% if exam.status == "completed" %}View report{% else %}Write report{% endif %}</a>
+                    </header>
+                    <ul class="image-grid" role="list">
+                        {% for image in exam.images.all %}
+                        <li class="image-tile">
+                            <a href="{{ image.file.url }}" target="_blank" rel="noopener" class="image-frame" aria-label="Open {{ image.filename }} in a new tab">
+                                {% if image.is_previewable %}<img src="{{ image.file.url }}" alt="{{ image.caption|default:exam.service.name }}{% if image.view %}, {{ image.get_view_display }} view{% endif %}" loading="lazy" decoding="async">
+                                {% else %}<span class="file-glyph"><i class="fa fa-file-image-o" aria-hidden="true"></i><span>{{ image.filename }}</span></span>{% endif %}
+                            </a>
+                            <div class="image-meta">
+                                <p>{{ image.caption|default:image.filename }}</p>
+                                <p class="help-text">{% if image.view %}{{ image.get_view_display }} &middot; {% endif %}{{ image.uploaded_on|date:"j M Y, H:i" }}</p>
+                                {% if exam.status != "completed" %}
+                                <form method="post" data-confirm="Delete {{ image.filename }}?">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="intent" value="delete">
+                                    <input type="hidden" name="tab" value="archive">
+                                    <input type="hidden" name="image" value="{{ image.pk }}">
+                                    <button type="submit" class="link-button">Delete</button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </section>
+                {% empty %}
+                <p class="empty-state">{% if query %}No examinations with images match '{{ query }}'.{% else %}No images filed yet. Upload them against an examination from the Upload images tab.{% endif %}</p>
+                {% endfor %}
+            </section>
+            <section class="variable-section" id="upload_image">
+                <form method="post" class="app-form" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" name="intent" value="upload">
+                    <input type="hidden" name="tab" value="upload_image">
+                    {% for error in image_form.non_field_errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+                    <div class="form-grid">{% for field in image_form %}{% include "utils/_field.html" %}{% endfor %}</div>
+                    <div class="form-actions"><button type="submit" class="accented">Upload image</button></div>
+                </form>
+            </section>
+        </section>
+    </main>
+{% endblock %}

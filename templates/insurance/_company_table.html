@@ -1,0 +1,23 @@
+{% if rows %}
+<table class="display datatable" style="width:100%">
+    <thead>
+        <tr><th>Code</th><th>Name</th><th>Telephone</th><th>Contact person</th><th>Billed ({{ currency }})</th><th>Received ({{ currency }})</th><th>Balance ({{ currency }})</th><th>Active</th></tr>
+    </thead>
+    <tbody>
+        {% for row in rows %}
+        <tr data-href="{% url 'finance:finance-company' row.kind row.company.pk %}">
+            <td>{{ row.company.code }}</td>
+            <td>{{ row.company.name }}</td>
+            <td>{{ row.company.telephone|default:"" }}</td>
+            <td>{{ row.company.contact_person|default:"" }}</td>
+            <td>{{ row.billed }}</td>
+            <td>{{ row.received }}</td>
+            <td>{{ row.balance }}</td>
+            <td>{{ row.company.is_active|yesno:"Yes,No" }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p class="empty-state">No companies added yet.</p>
+{% endif %}

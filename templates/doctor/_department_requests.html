@@ -1,0 +1,27 @@
+<section class="variable-section" id="department_{{ department }}" data-department="{{ department }}">
+  <form class="section-form app-form" data-department-form>
+    <p class="section-title">Request {{ label }} Examination</p>
+    <div class="form-grid">
+      <div class="form-control flex flex-column">
+        <label for="department_service_{{ department }}">Examination</label>
+        <select class="input" id="department_service_{{ department }}" name="service" required>
+          <option value="">Select examination</option>
+        </select>
+      </div>
+      <div class="form-control flex flex-column">
+        <label for="department_narration_{{ department }}">Clinical notes</label>
+        <textarea class="input" id="department_narration_{{ department }}" name="narration" rows="2"></textarea>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="accented">Place request</button>
+    </div>
+  </form>
+  <table id="department_table_{{ department }}" class="display" style="width:100%">
+    <thead>
+      <tr><th>Examination</th><th>Price ({{ currency }})</th><th>Status</th><th>Requested by</th><th>Requested</th><th>Reported</th><th></th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <dl class="report" data-department-report hidden></dl>
+</section>

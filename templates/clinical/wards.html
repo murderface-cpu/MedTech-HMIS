@@ -1,0 +1,66 @@
+{% extends '../utils/layout.html' %}
+{% load hmis %}
+{% block body_attributes %}data-remember-tab{% endblock %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <button type="button" class="accented section-togglers" data-section="ward_board" data-default>Board</button>
+                <button type="button" class="accented section-togglers" data-section="add_ward">Add a ward</button>
+                <button type="button" class="accented section-togglers" data-section="add_beds">Add beds</button>
+            </div>
+            <section class="variable-section" id="ward_board">
+                <ul class="bed-legend" role="list" aria-label="Bed status key">
+                    <li><span class="bed-key is-available" aria-hidden="true"></span>Available</li>
+                    <li><span class="bed-key is-occupied" aria-hidden="true"></span>Occupied</li>
+                    <li><span class="bed-key is-cleaning" aria-hidden="true"></span>Being cleaned</li>
+                    <li><span class="bed-key is-out_of_service" aria-hidden="true"></span>Out of service</li>
+                </ul>
+                {% for entry in wards %}
+                <section class="ward-panel" aria-labelledby="ward-{{ entry.ward.pk }}">
+                    <header class="ward-panel-head">
+                        <div>
+                            <h2 id="ward-{{ entry.ward.pk }}">{{ entry.ward.name }}{% if not entry.ward.is_active %} <span class="status tone-neutral">Closed</span>{% endif %}</h2>
+                            <p class="help-text">{{ entry.ward.get_kind_display }} &middot; {{ currency }} {{ entry.ward.daily_rate|money }} a day{% if entry.ward.location %} &middot; {{ entry.ward.location }}{% endif %}</p>
+                        </div>
+                        <p class="ward-occupancy"><strong>{{ entry.occupied }}</strong> of {{ entry.total }} occupied &middot; {{ entry.available }} free</p>
+                    </header>
+                    {% if entry.beds %}
+                    <ol class="bed-grid" role="list">
+                        {% for item in entry.beds %}
+                        <li class="bed-tile is-{{ item.bed.status }}">
+                            <p class="bed-number">Bed {{ item.bed.number }}</p>
+                            {% if item.admission %}
+                            <a class="bed-patient" href="{% url 'clinical:admission' item.admission.pk %}">{{ item.admission.patient }}</a>
+                            <p class="bed-meta">Day {{ item.admission.days_admitted }} &middot; {{ item.admission.reason|truncatechars:40 }}</p>
+                            {% else %}
+                            <p class="bed-meta">{{ item.bed.get_status_display }}</p>
+                            <form method="post" class="bed-actions">
+                                {% csrf_token %}
+                                <input type="hidden" name="intent" value="bed_status">
+                                <input type="hidden" name="tab" value="ward_board">
+                                <input type="hidden" name="bed" value="{{ item.bed.pk }}">
+                                {% if item.bed.status != "available" %}<button type="submit" name="status" value="available">Mark available</button>{% endif %}
+                                {% if item.bed.status == "available" %}<button type="submit" name="status" value="out_of_service">Take out of service</button>{% endif %}
+                            </form>
+                            {% endif %}
+                        </li>
+                        {% endfor %}
+                    </ol>
+                    {% else %}
+                    <p class="help-text">No beds yet. Add them from the Add beds tab.</p>
+                    {% endif %}
+                </section>
+                {% empty %}
+                <p class="empty-state">No wards yet. Add a ward with its beds and daily charge from the Add a ward tab.</p>
+                {% endfor %}
+            </section>
+            <section class="variable-section" id="add_ward">
+                {% include "utils/_form.html" with form=ward_form intent="add_ward" submit="Add ward" tab="add_ward" %}
+            </section>
+            <section class="variable-section" id="add_beds">
+                {% include "utils/_form.html" with form=beds_form intent="add_beds" submit="Add beds" tab="add_beds" %}
+            </section>
+        </section>
+    </main>
+{% endblock %}

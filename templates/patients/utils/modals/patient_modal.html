@@ -1,0 +1,146 @@
+{% load static %}
+
+<div class="modal" id="create_patient_modal" role="dialog" aria-modal="true" aria-labelledby="create_patient_modal_title">
+    <div class="modal-header">
+        <h3 class="modal-title" id="create_patient_modal_title" data-create-title="Register patient" data-edit-title="Edit patient">Register patient</h3>
+        <button type="button" class="icon-button" data-close-modal aria-label="Close"><i class="fa fa-times" aria-hidden="true"></i></button>
+    </div>
+    <div class="modal-body">
+        <form>
+        <div class="modal-section">
+        <div class="section-label">
+            <small>Personal information</small>
+        </div>
+        <div class="section-content">
+            <div class="flex flex-gap-40">
+                <div class="form-control flex flex-column">
+                <label for="firstName">First name *</label>
+                <input class="input" type="text" id="firstName" data-required />
+                </div>
+                <div class="form-control flex flex-column">
+                <label for="middleName">Middle name</label>
+                <input class="input" type="text" id="middleName"/>
+                </div>
+                <div class="form-control flex flex-column">
+                <label for="lastName">Last name *</label>
+                <input class="input" type="text" id="lastName" data-required/>
+                </div>
+                <div class="form-control flex flex-column">
+                <div class="patient-image flex">
+                    <img src="{% static 'images/user.png' %}" alt="" />
+                </div>
+                </div>
+            </div>
+            <div class="flex flex-gap-40">
+                <div class="form-control flex flex-column">
+                <label for="NIN">National ID No.</label>
+                <input class="input" type="text" id="NIN"/>
+                </div>
+                <div class="form-control flex" style="gap: 20px">
+                <div class="flex flex-column" style="flex: 1">
+                    <label for="age">Age</label>
+                    <input class="input" type="number" min="0" id="age"/>
+                </div>
+                <div class="flex flex-column" style="flex: 2">
+                    <label for="dateOfBirth">Date of Birth</label>
+                    <input class="input" type="date" id="dateOfBirth"/>
+                </div>
+                </div>
+                <div class="form-control flex flex-column">
+                <label for="gender">Gender *</label>
+                <select class="input" id="gender" data-required>
+                    {% for value, label in gender_choices %}
+                    <option value="{{ value }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+                </div>
+                <div class="form-control flex flex-column">
+                <label for="patient_id">Patient ID</label>
+                <input class="input" type="text" disabled id="patient_id" placeholder="Assigned on save"/>
+                </div>
+            </div>
+        </div>
+        </div>
+        <div class="modal-section">
+        <div class="section-label">
+            <small>Contact information</small>
+        </div>
+        <div class="section-content">
+            <div class="section-content-row flex flex-gap-40">
+                <div class="form-control flex flex-column">
+                <label for="phoneNumber">Phone number *</label>
+                <input class="input" type="tel" id="phoneNumber" data-required/>
+                </div>
+                <div class="form-control flex flex-column">
+                <label for="AltNumber">Alternative</label>
+                <input class="input" type="tel" id="AltNumber"/>
+                </div>
+                <div class="form-control flex flex-column">
+                <label for="email">Email address</label>
+                <input class="input" type="email" id="email"/>
+                </div>
+                <div class="form-control flex flex-column">
+                <label for="address">Home address</label>
+                <input class="input" type="text" id="address"/>
+                </div>
+            </div>
+        </div>
+        </div>
+        <div class="modal-section">
+        <div class="section-label">
+            <small>Next of Kin (optional)</small>
+        </div>
+        <div class="section-content">
+            <div class="section-content-row flex flex-gap-40">
+                <div class="form-control flex flex-column">
+                <label for="NOK_firstName">First name</label>
+                <input class="input" type="text" id="NOK_firstName" data-nok-required />
+                </div>
+                <div class="form-control flex flex-column">
+                <label for="NOK_middleName">Middle name</label>
+                <input class="input" type="text" id="NOK_middleName" />
+                </div>
+                <div class="form-control flex flex-column">
+                <label for="NOK_lastName">Last name</label>
+                <input class="input" type="text" id="NOK_lastName" data-nok-required />
+                </div>
+                <div class="form-control flex flex-column">
+                <label for="NOK_relationship">Relationship</label>
+                <select class="input" id="NOK_relationship">
+                    {% for value, label in relationship_choices %}
+                    <option value="{{ value }}">{{ label }}</option>
+                    {% endfor %}
+                </select>
+                </div>
+            </div>
+            <div class="section-content-row flex flex-gap-40">
+                <div class="form-control flex flex-column">
+                    <label for="NOK_nin">National ID No.(NiN)</label>
+                    <input class="input" type="text" id="NOK_nin" />
+                </div>
+                <div class="form-control flex flex-column">
+                    <label for="NOK_phoneNumber">Phone number</label>
+                    <input class="input" type="tel" id="NOK_phoneNumber" data-nok-required />
+                </div>
+                <div class="form-control flex flex-column">
+                    <label for="NOK_Gender">Gender</label>
+                    <select class="input" id="NOK_Gender">
+                        {% for value, label in gender_choices %}
+                        <option value="{{ value }}">{{ label }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-control flex flex-column">
+                    <label for="NOK_address">Home address</label>
+                    <input class="input" type="text" id="NOK_address" />
+                </div>
+            </div>
+        </div>
+        </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <button type="button" data-close-modal>Cancel</button>
+        <button type="button" class="accented" data-submit="patient">Save patient</button>
+    </div>
+</div>

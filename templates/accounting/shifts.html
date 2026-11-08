@@ -1,0 +1,91 @@
+{% extends '../utils/layout.html' %}
+{% load hmis %}
+{% block body_attributes %}data-remember-tab{% endblock %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <button type="button" class="accented section-togglers" data-section="my_shift" data-default>My shift</button>
+                <button type="button" class="accented section-togglers" data-section="open_shifts">Open now ({{ open_shifts|length }})</button>
+                <button type="button" class="accented section-togglers" data-section="shift_history">History</button>
+            </div>
+            <section class="variable-section" id="my_shift">
+                {% if shift %}
+                <div class="summary-cards">
+                    <div><small>Opened</small><strong>{{ shift.opened_on|time:"H:i" }}</strong></div>
+                    <div><small>Float</small><strong>{{ shift.opening_float|money }}</strong></div>
+                    {% for method, label in methods %}<div><small>{{ label }}</small><strong>{{ takings|get_item:method|money }}</strong></div>{% endfor %}
+                    <div><small>Refunds paid out</small><strong>{{ shift.refunds_paid|money }}</strong></div>
+                    <div><small>Cash expected in drawer</small><strong>{{ shift.expected_cash|money }}</strong></div>
+                </div>
+                <form method="post" class="app-form" data-confirm="Close your shift? Payments you receive after this start a new shift.">
+                    {% csrf_token %}
+                    <input type="hidden" name="intent" value="close">
+                    <input type="hidden" name="tab" value="my_shift">
+                    <p class="section-title">Close the shift</p>
+                    <div class="form-grid">{% for field in close_form %}{% include "utils/_field.html" %}{% endfor %}</div>
+                    <div class="form-actions"><button type="submit" class="accented">Count and close</button></div>
+                </form>
+                <p class="section-title">Payments this shift ({{ shift_payments|length }})</p>
+                <table class="display datatable" data-empty="No payments received yet this shift." style="width:100%">
+                    <thead><tr><th>Time</th><th>Invoice</th><th>Patient</th><th>Paid by</th><th class="num">Amount ({{ currency }})</th></tr></thead>
+                    <tbody>
+                        {% for payment in shift_payments %}
+                        <tr data-href="{% url 'finance:finance-invoice' payment.invoice_id %}">
+                            <td data-order="{{ payment.received_on|date:'c' }}">{{ payment.received_on|time:"H:i" }}</td>
+                            <td>{{ payment.invoice.invoice_number }}</td>
+                            <td>{{ payment.invoice.patient }}</td>
+                            <td>{{ payment.get_method_display }}</td>
+                            <td class="num">{{ payment.amount|money }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <form method="post" class="app-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="intent" value="open">
+                    <input type="hidden" name="tab" value="my_shift">
+                    <p class="section-title">Open a shift</p>
+                    <p class="help-text">Count the float in the drawer before you take the first payment. When you close, the cash you count is compared with the float plus cash received, less refunds paid out.</p>
+                    <div class="form-grid">{% for field in open_form %}{% include "utils/_field.html" %}{% endfor %}</div>
+                    <div class="form-actions"><button type="submit" class="accented">Open shift</button></div>
+                </form>
+                {% endif %}
+            </section>
+            <section class="variable-section" id="open_shifts">
+                <table class="display datatable" data-empty="No shifts are open." style="width:100%">
+                    <thead><tr><th>Cashier</th><th>Opened</th><th class="num">Float ({{ currency }})</th><th class="num">Cash expected ({{ currency }})</th></tr></thead>
+                    <tbody>
+                        {% for open_shift in open_shifts %}
+                        <tr>
+                            <td>{{ open_shift.cashier.get_full_name|default:open_shift.cashier.get_username }}</td>
+                            <td data-order="{{ open_shift.opened_on|date:'c' }}">{{ open_shift.opened_on|date:"DATETIME_FORMAT" }}</td>
+                            <td class="num">{{ open_shift.opening_float|money }}</td>
+                            <td class="num">{{ open_shift.expected_cash|money }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+            <section class="variable-section" id="shift_history">
+                <table class="display datatable" data-empty="Closed shifts appear here." style="width:100%">
+                    <thead><tr><th>Cashier</th><th>Opened</th><th>Closed</th><th class="num">Expected ({{ currency }})</th><th class="num">Counted ({{ currency }})</th><th class="num">Variance ({{ currency }})</th><th>Notes</th></tr></thead>
+                    <tbody>
+                        {% for closed in closed_shifts %}
+                        <tr>
+                            <td>{{ closed.cashier.get_full_name|default:closed.cashier.get_username }}</td>
+                            <td data-order="{{ closed.opened_on|date:'c' }}">{{ closed.opened_on|date:"j M, H:i" }}</td>
+                            <td>{{ closed.closed_on|date:"j M, H:i" }}</td>
+                            <td class="num">{{ closed.expected_cash|money }}</td>
+                            <td class="num">{{ closed.counted_cash|money }}</td>
+                            <td class="num">{% with variance=closed.variance %}{% if variance == 0 %}<span class="status tone-ok">Balanced</span>{% elif variance > 0 %}<span class="status tone-warn">{{ variance|money }} over</span>{% else %}<span class="status tone-bad">{{ variance|money }} short</span>{% endif %}{% endwith %}</td>
+                            <td>{{ closed.notes }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+        </section>
+    </main>
+{% endblock %}

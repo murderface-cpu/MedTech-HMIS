@@ -1,0 +1,37 @@
+{% extends '../utils/layout.html' %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <a class="button-link accented" href="{% url 'manager:manager-inventory' %}"><i class="fa fa-arrow-left"></i>&nbsp;All drugs</a>
+                <a class="button-link accented" href="{% url 'manager:manager-inventory' %}?tab=receive_stock&amp;drug={{ drug.pk }}">Receive stock</a>
+            </div>
+            <p class="section-title">{{ drug.name }} &middot; {{ drug.drug_number }}</p>
+            <div class="totals">
+                <span>In stock: <strong>{{ drug.stock_available }}</strong></span>
+                <span>Expired: <strong>{{ drug.stock_expired }}</strong></span>
+                <span>Received in total: <strong>{{ drug.stock_purchased }}</strong></span>
+                <span>Next expiry: <strong>{{ drug.next_expiry|default:"None" }}</strong></span>
+            </div>
+            {% include "utils/_form.html" with form=drug_form intent="update_drug" submit="Save changes" %}
+            <p class="section-title">Stock batches</p>
+            <table class="display datatable" style="width:100%">
+                <thead>
+                    <tr><th>Received</th><th>Supplier</th><th>Quantity</th><th>Remaining</th><th>Expiry</th><th>Received by</th></tr>
+                </thead>
+                <tbody>
+                    {% for batch in batches %}
+                    <tr>
+                        <td data-order="{{ batch.received_on|date:'c' }}">{{ batch.received_on|date:"DATETIME_FORMAT" }}</td>
+                        <td>{{ batch.supplier|default:"" }}</td>
+                        <td>{{ batch.quantity_received }}</td>
+                        <td>{{ batch.quantity_remaining }}</td>
+                        <td>{{ batch.expiry_date|default:"" }}</td>
+                        <td>{{ batch.received_by|default:"" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </main>
+{% endblock %}

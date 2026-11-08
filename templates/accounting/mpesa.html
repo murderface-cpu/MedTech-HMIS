@@ -1,0 +1,104 @@
+{% extends '../utils/layout.html' %}
+{% load hmis %}
+{% block body_attributes %}data-remember-tab{% endblock %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <button type="button" class="accented section-togglers" data-section="unmatched_payments" data-default>To match ({{ unmatched|length }})</button>
+                <button type="button" class="accented section-togglers" data-section="record_mpesa">Record a payment</button>
+                <button type="button" class="accented section-togglers" data-section="matched_payments">Matched</button>
+                <button type="button" class="accented section-togglers" data-section="rejected_payments">Set aside</button>
+            </div>
+            <section class="variable-section" id="unmatched_payments">
+                {% if unmatched %}
+                <p class="help-text">{{ currency }} {{ unmatched_total|money }} received and not yet on an invoice. Suggestions come from the account reference and the payer's phone number.</p>
+                <table class="display" style="width:100%">
+                    <thead><tr><th>Paid at</th><th>Receipt</th><th>From</th><th>Account reference</th><th class="num">Amount ({{ currency }})</th><th>Match to invoice</th></tr></thead>
+                    <tbody>
+                        {% for item in unmatched %}
+                        <tr>
+                            <td>{{ item.transacted_on|date:"j M, H:i" }}</td>
+                            <td><strong>{{ item.receipt_number }}</strong></td>
+                            <td>{{ item.payer_name|default:"" }}<br><small class="help-text">{{ item.phone }}</small></td>
+                            <td>{{ item.account_reference|default:"None given" }}</td>
+                            <td class="num">{{ item.amount|money }}</td>
+                            <td>
+                                <div class="row-actions">
+                                    <form method="post" class="inline-form">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="intent" value="match">
+                                        <input type="hidden" name="tab" value="unmatched_payments">
+                                        <input type="hidden" name="transaction" value="{{ item.pk }}">
+                                        <select class="input input-wide" name="invoice" required aria-label="Invoice for {{ item.receipt_number }}">
+                                            <option value="">Choose an invoice</option>
+                                            {% if item.suggestions %}
+                                            <optgroup label="Suggested">
+                                                {% for invoice in item.suggestions %}<option value="{{ invoice.pk }}" {% if forloop.first %}selected{% endif %}>{{ invoice.invoice_number }} - {{ invoice.patient }} (owes {{ invoice.balance|money }})</option>{% endfor %}
+                                            </optgroup>
+                                            {% endif %}
+                                            <optgroup label="All pending invoices">
+                                                {% for invoice in pending_invoices %}<option value="{{ invoice.pk }}">{{ invoice.invoice_number }} - {{ invoice.patient }}</option>{% endfor %}
+                                            </optgroup>
+                                        </select>
+                                        <button type="submit" class="accented">Match</button>
+                                    </form>
+                                    <form method="post" class="inline-form" data-confirm="Set {{ item.receipt_number }} aside as not for this hospital?">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="intent" value="reject">
+                                        <input type="hidden" name="tab" value="unmatched_payments">
+                                        <input type="hidden" name="transaction" value="{{ item.pk }}">
+                                        <button type="submit">Set aside</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="empty-state">Every M-Pesa payment is matched. Record a payment from the confirmation message to match it to an invoice.</p>
+                {% endif %}
+            </section>
+            <section class="variable-section" id="record_mpesa">
+                <p class="help-text">Copy the details from the M-Pesa confirmation SMS or the paybill statement. The live Daraja connection is not set up yet, so payments are recorded here by hand.</p>
+                {% include "utils/_form.html" with form=transaction_form intent="record" submit="Record payment" tab="record_mpesa" %}
+            </section>
+            <section class="variable-section" id="matched_payments">
+                <table class="display datatable" data-empty="Matched payments appear here." style="width:100%">
+                    <thead><tr><th>Paid at</th><th>Receipt</th><th>From</th><th class="num">Amount ({{ currency }})</th><th>Invoice</th><th>Patient</th><th>Matched by</th></tr></thead>
+                    <tbody>
+                        {% for item in matched %}
+                        <tr{% if item.payment %} data-href="{% url 'finance:finance-invoice' item.payment.invoice_id %}"{% endif %}>
+                            <td data-order="{{ item.transacted_on|date:'c' }}">{{ item.transacted_on|date:"DATETIME_FORMAT" }}</td>
+                            <td>{{ item.receipt_number }}</td>
+                            <td>{{ item.phone }}</td>
+                            <td class="num">{{ item.amount|money }}</td>
+                            <td>{{ item.payment.invoice.invoice_number|default:"" }}</td>
+                            <td>{{ item.payment.invoice.patient|default:"" }}</td>
+                            <td>{{ item.matched_by|default:"" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+            <section class="variable-section" id="rejected_payments">
+                <table class="display datatable" data-empty="Nothing set aside." style="width:100%">
+                    <thead><tr><th>Paid at</th><th>Receipt</th><th>From</th><th class="num">Amount ({{ currency }})</th><th>Reference</th><th>Set aside by</th></tr></thead>
+                    <tbody>
+                        {% for item in rejected %}
+                        <tr>
+                            <td data-order="{{ item.transacted_on|date:'c' }}">{{ item.transacted_on|date:"DATETIME_FORMAT" }}</td>
+                            <td>{{ item.receipt_number }}</td>
+                            <td>{{ item.phone }}</td>
+                            <td class="num">{{ item.amount|money }}</td>
+                            <td>{{ item.account_reference }}</td>
+                            <td>{{ item.matched_by|default:"" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+        </section>
+    </main>
+{% endblock %}

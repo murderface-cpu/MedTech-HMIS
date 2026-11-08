@@ -1,0 +1,53 @@
+{% extends '../utils/layout.html' %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <a class="button-link" href="{% url 'clinical:wards' %}">Ward board</a>
+            </div>
+            {% if awaiting %}
+            <p class="help-text">{{ free_beds|length }} bed{{ free_beds|pluralize }} available. Patients are listed in the order admission was requested.</p>
+            <table class="display" style="width:100%">
+                <thead><tr><th>Requested</th><th>Patient</th><th>Reason</th><th>Ward requested</th><th>Doctor</th><th>From</th><th>Assign a bed</th></tr></thead>
+                <tbody>
+                    {% for admission in awaiting %}
+                    <tr>
+                        <td>{{ admission.requested_on|date:"DATETIME_FORMAT" }}<br><small class="help-text">{{ admission.requested_on|timesince }} ago</small></td>
+                        <td>{{ admission.patient }}<br><small class="help-text">{{ admission.patient.gender }}, {{ admission.patient.age }}</small></td>
+                        <td>{{ admission.reason }}</td>
+                        <td>{{ admission.requested_ward|default:"Any ward" }}</td>
+                        <td>{{ admission.doctor|default:"" }}</td>
+                        <td>{% if admission.emergency_case %}<span class="acuity-tag acuity-{{ admission.emergency_case.acuity }}">Emergency</span>{% else %}Outpatient{% endif %}</td>
+                        <td>
+                            <div class="row-actions">
+                                <form method="post" class="inline-form">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="intent" value="assign">
+                                    <input type="hidden" name="admission" value="{{ admission.pk }}">
+                                    <select class="input input-wide" name="bed" required aria-label="Bed for {{ admission.patient }}">
+                                        <option value="">Choose a bed</option>
+                                        {% for bed in free_beds %}
+                                        <option value="{{ bed.pk }}">{{ bed.ward.name }}, bed {{ bed.number }}{% if bed.ward_id == admission.requested_ward_id %} (ward requested){% endif %}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <button type="submit" class="accented">Admit</button>
+                                </form>
+                                <form method="post" class="inline-form" data-confirm="Cancel the admission request for {{ admission.patient }}?">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="intent" value="cancel">
+                                    <input type="hidden" name="admission" value="{{ admission.pk }}">
+                                    <button type="submit">Cancel</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% if not free_beds %}<p class="field-error">No beds are free. Mark cleaned beds as available on the ward board.</p>{% endif %}
+            {% else %}
+            <p class="empty-state">Nobody is waiting for a bed. Requests from Admissions and the emergency queue appear here.</p>
+            {% endif %}
+        </section>
+    </main>
+{% endblock %}

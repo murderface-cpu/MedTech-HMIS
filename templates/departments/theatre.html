@@ -1,0 +1,45 @@
+{% extends '../utils/layout.html' %}
+{% block body_attributes %}data-remember-tab{% endblock %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <button type="button" class="accented section-togglers" data-section="theatre_orders" data-default>To book ({{ orders|length }})</button>
+                <button type="button" class="accented section-togglers" data-section="new_booking">New booking</button>
+                <button type="button" class="accented section-togglers" data-section="scheduled_bookings">Scheduled ({{ scheduled|length }})</button>
+                <button type="button" class="accented section-togglers" data-section="booking_history">History</button>
+            </div>
+            <section class="variable-section" id="theatre_orders">
+                {% if orders %}
+                <table class="display datatable" style="width:100%">
+                    <thead><tr><th>Ordered</th><th>Patient</th><th>Visit</th><th>Service</th><th>Notes</th><th>Ordered by</th><th></th></tr></thead>
+                    <tbody>
+                        {% for order in orders %}
+                        <tr>
+                            <td data-order="{{ order.created_on|date:'c' }}">{{ order.created_on|date:"DATETIME_FORMAT" }}</td>
+                            <td>{{ order.visit.patient }}</td>
+                            <td>{{ order.visit.visit_id }}</td>
+                            <td>{{ order.service.name }}</td>
+                            <td>{{ order.notes|default:"" }}</td>
+                            <td>{{ order.ordered_by|default:"" }}</td>
+                            <td><a class="button-link accented" href="?tab=new_booking&amp;visit={{ order.visit_id }}&amp;service={{ order.service_id }}">Book</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="empty-state">No theatre orders waiting to be booked. Doctors order theatre services from the Doctor module.</p>
+                {% endif %}
+            </section>
+            <section class="variable-section" id="new_booking">
+                {% include "utils/_form.html" with form=booking_form intent="book" submit="Book theatre" tab="new_booking" %}
+            </section>
+            <section class="variable-section" id="scheduled_bookings">
+                {% include "./_booking_table.html" with bookings=scheduled empty="No procedures scheduled." %}
+            </section>
+            <section class="variable-section" id="booking_history">
+                {% include "./_booking_table.html" with bookings=history empty="No procedures recorded yet." %}
+            </section>
+        </section>
+    </main>
+{% endblock %}

@@ -1,0 +1,449 @@
+/* Box sizing rules */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+/* Remove default margin */
+body,
+h1,
+h2,
+h3,
+h4,
+p,
+figure,
+blockquote,
+dl,
+dd {
+  margin: 0;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* Remove list styles on ul, ol elements with a list role, which suggests default styling will be removed */
+ul[role='list'],
+ol[role='list'] {
+  list-style: none;
+}
+
+/* Set core root defaults */
+html:focus-within {
+  scroll-behavior: smooth;
+}
+
+/* Set core body defaults */
+body {
+  min-block-size: 100svh;
+  text-rendering: optimizeSpeed;
+  line-height: 1.5;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+/* A elements that don't have a class get default styles */
+a:not([class]) {
+  text-decoration-skip-ink: auto;
+}
+
+/* Make images easier to work with */
+img,
+picture {
+  max-inline-size: 100%;
+  display: block;
+  object-fit: contain;
+  aspect-ratio: 1/1;
+}
+
+/* Inherit fonts for inputs and buttons */
+input,
+button,
+textarea,
+select {
+  font: inherit;
+}
+
+/* Remove all animations, transitions and smooth scroll for people that prefer not to see them */
+@media (prefers-reduced-motion: reduce) {
+  html:focus-within {
+    scroll-behavior: auto;
+  }
+  
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+.body {
+  position: relative;
+}
+
+.flex {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.flex-column {
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.flex-gap-40 {
+  gap: 20px;
+}
+
+.modal {
+  display: none;
+  background-color: #e1edf7;
+  border: 2px solid #cce5f9;
+  inline-size: 80%;
+  block-size: 95svh;
+  border-radius: 0;
+  padding: 0;
+  position: absolute;
+  top: 10%;
+  right: 50%;
+  transform: translate(50%, -10%);
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.modal.inview {
+  display: grid;
+}
+
+.modal-header {
+  background-color: #1da1f2;
+  padding: 18px 20px;
+  border-block-end: 2px solid #1da1f2;
+}
+
+.modal-header h3 {
+  font-weight: 500;
+  font-size: 16px;
+  color: #f2f2f2;
+}
+
+.modal-body {
+  background-color: #ffffff;
+  border-radius: 0;
+  padding: 20px 20px;
+  margin: 0;
+  block-size: 75svh;
+  overflow-y: auto;
+}
+
+.modal-footer {
+  background-color: #e1edf7;
+  padding: 10px;
+}
+
+.modal-footer .form-control {
+  display: flex;
+  justify-content: flex-end;
+  gap: 20px;
+}
+
+
+
+
+.modal-section {
+  position: relative;
+  z-index: 5;
+  block-size: auto;
+  margin-block-start: 20px;
+}
+
+.modal-section:nth-child(1) {
+  margin-block-start: 0;
+}
+
+.modal-section .section-label {
+  background-color: #F8F8F8;
+  padding: 0 0.2rem;
+  inline-size: fit-content;
+  block-size: auto;
+  position: absolute;
+  z-index: 10;
+  top: 2%;
+  left: 0%;
+  transform: translate(10%, -65%);
+}
+
+.modal .modal-section .section-label {
+  background-color: #ffffff;
+}
+
+.modal-section .section-label small {
+  margin: 0;
+  font-size: 16px;
+  color: #81caf8;
+  font-weight: 500;
+}
+
+.modal-section .section-content {
+  color: rgb(155, 155, 155);
+  block-size: fit-content;
+  border: 2px dotted #b9dff9;
+  border-radius: 8px;
+  padding: 15px;
+  display: grid;
+  gap: 1rem;
+}
+.section-content-row.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+.section-content-row.flex {
+  justify-content: space-between;
+}
+
+.modal-section .patient-image {
+  inline-size: 100%;
+  justify-content: flex-end !important;
+}
+
+.modal-section .patient-image img {
+  inline-size: 62px;
+  block-size: 62px;
+}
+
+.modal-section .section-content .form-control {
+  flex: 1;
+}
+
+.modal-section .section-content label {
+  font-size: 16px;
+  color: hsl(0, 1%, 25%);
+}
+
+.modal-section .section-content .input {
+  border: 1px solid #cce5f9;
+  border-radius: 6px;
+  padding-block: 4.6px;
+  padding: .25rem .5rem;
+  inline-size: 100% !important;
+  background-color: hsl(208, 57%, 98%);
+  outline: none;
+}
+
+.modal-section .section-content select,
+.modal-section .section-content textarea,
+.modal-section .section-content input[type="date"] {
+  border: 1px solid #cce5f9;
+  border-radius: 6px;
+  padding: 3.3px;
+  inline-size: 100% !important;
+  background-color: #edf4fa;
+}
+
+.modal-section .section-content textarea {
+  padding-inline: 15px;
+}
+
+.modal-section .section-content input[type="date"] {
+  padding-inline: 0.8px;
+}
+
+.modal-section .section-content .input:focus {
+  outline: none;
+}
+
+.modal-section .section-content input.error,
+.modal-section .section-content textarea.error,
+.modal-section .section-content select.error {
+  border: 2px solid #e21b1b;
+}
+
+.modal-section .section-content .flex {
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.modal-section .section-tabs.flex {
+  justify-content: flex-start;
+  background-color: #fff;
+}
+
+.modal-section .section-tab {
+  background-color: #fff;
+  padding: 10px 20px;
+  border-inline-end: 1px solid #eae9e9;
+  border-block-end: 1px solid #eae9e9;
+  cursor: pointer;
+}
+
+.modal-section .section-tab.current {
+  border-block-end: none;
+  background-color: #fffaec;
+}
+
+.modal-section .section-tabs-content {
+  background-color: #fffaec;
+  inline-size: 100%;
+  block-size: 250px;
+  overflow: scroll;
+  padding: 15px;
+}
+
+.modal-section .content-hidden {
+  display: none;
+}
+
+.modal-section table {
+  font-family: arial, sans-serif;
+  border-collapse: collapse;
+  inline-size: 100%;
+  overflow: scroll;
+}
+
+.modal-section table tr {
+  cursor: pointer;
+}
+
+.modal-section table th {
+  font-family: "Lato", sans-serif;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.modal-section table th,
+.modal-section table td {
+  border: 1px solid #dddddd;
+  text-align: left;
+  padding: 0 0.5rem;
+}
+
+
+.disabled {
+  opacity: .5;
+}
+
+.disabled:hover {
+  cursor: not-allowed;
+}
+
+
+
+.visibility-hidden {
+  display: none;
+}
+
+.display-none {
+  display: none !important;
+}
+
+.display-block {
+  display: block;
+}
+
+
+/* lists */
+table {
+  border-collapse: collapse;
+}
+table tr {
+  border-block-end: 1px solid hsla(213, 28%, 80%, 70%);
+  border-inline: 3px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease-out;
+  border-color: hsla(213, 28%, 80%, 70%);
+}
+table tbody tr:hover {
+  background-color: hsla(213, 28%, 70%, 10%);
+  border-inline: 3px solid var(--secondary-color);
+}
+
+tr th,
+tr td {
+  padding: 0.5rem 1rem;
+  text-align: left;
+}
+
+tr th {
+  text-transform: capitalize;
+}
+
+tbody tr:nth-child(even) {
+  background-color: hsla(213, 28%, 85%, 20%);
+}
+tbody tr td:nth-child(even) {
+  background-color: hsla(213, 28%, 95%, 20%);
+}
+
+tbody tr td {
+  color: hsla(213, 28%, 35%, 100%);
+}
+
+tbody tr td.delete {
+  display: grid;
+  place-items: center;
+}
+
+table tbody tr.alert {
+  background-color: hsl(195, 53%, 85%);
+}
+table tbody tr.alert:hover {
+  background-color: hsl(195, 53%, 80%);
+}
+table tbody tr.alert td,
+table tbody tr.active td {
+  background-color: inherit;
+}
+
+table tbody tr.active {
+  background-color: hsl(145, 61%, 64%);
+  display: block !important;
+}
+
+.data-grid {
+  display: none;
+}
+
+.modal_search {
+  border: 1px solid #cce5f9;
+  border-radius: 6px;
+  padding: .5rem 1rem;
+  margin-block-end: 1rem;
+  inline-size: 100% !important;
+  background-color: #edf4fa;
+}
+
+#allergies_form_area {
+  padding: 2rem auto;
+  block-size: 55svh;
+  overflow-y: auto;
+  display: grid;
+  gap: 1rem;
+  align-content: flex-start;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.allergy_name,
+.allergy_comment {
+  margin-block: .25rem;
+  padding-inline: .25rem;
+}
+
+#allergies_form_area .addable-form-area {
+  background-color: hsl(205, 64%, 95%);
+  border-radius: 5px;
+  padding: 0.5rem;
+}
+#allergies_form_area input,
+#allergies_form_area textarea {
+  padding: .5rem;
+}
+

@@ -1,0 +1,130 @@
+{% extends '../utils/layout.html' %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <a class="button-link accented" href="{% url 'finance:finance-invoices' %}"><i class="fa fa-arrow-left"></i>&nbsp;All invoices</a>
+                <button type="button" class="accented" data-action="print"><i class="fa fa-print"></i>&nbsp;Print</button>
+            </div>
+
+            <div class="report invoice-document">
+                <div class="invoice-header">
+                    <div>
+                        <p class="section-title">{{ hospital_name }}</p>
+                        <p>Invoice <strong>{{ invoice.invoice_number }}</strong> &middot; issued {{ invoice.issued_on }}</p>
+                    </div>
+                    <span class="status {{ invoice.status }}">{{ invoice.get_status_display }}</span>
+                </div>
+                <dl class="invoice-meta">
+                    <div><dt>Patient</dt><dd>{{ invoice.patient }} ({{ invoice.patient.patient_id }})</dd></div>
+                    <div><dt>Visit</dt><dd>{{ invoice.visit.visit_id|default:"None" }}</dd></div>
+                    <div><dt>Billing</dt><dd>{{ invoice.billing_type|default:"Not set" }}{% if invoice.company %} &middot; {{ invoice.company }}{% endif %}</dd></div>
+                    {% if invoice.notes %}<div><dt>Notes</dt><dd>{{ invoice.notes }}</dd></div>{% endif %}
+                </dl>
+                <table class="display" style="width:100%">
+                    <thead><tr><th>Item</th><th>Quantity</th><th>Unit price ({{ currency }})</th><th>Total ({{ currency }})</th>{% if editable %}<th class="no-print"></th>{% endif %}</tr></thead>
+                    <tbody>
+                        {% for item in items %}
+                        <tr>
+                            <td>{{ item.description }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>{{ item.unit_price }}</td>
+                            <td>{{ item.total }}</td>
+                            {% if editable %}
+                            <td class="no-print">
+                                <form method="post" data-confirm="Remove {{ item.description }} from the invoice?">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="intent" value="remove_item">
+                                    <input type="hidden" name="item" value="{{ item.pk }}">
+                                    <button type="submit">Remove</button>
+                                </form>
+                            </td>
+                            {% endif %}
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="5">No items on this invoice.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div class="totals">
+                    <span>Total: <strong>{{ currency }} {{ invoice.total }}</strong></span>
+                    <span>Covered by company: <strong>{{ currency }} {{ invoice.company_covered }}</strong></span>
+                    <span>Patient pays: <strong>{{ currency }} {{ invoice.patient_payable }}</strong></span>
+                    <span>Paid: <strong>{{ currency }} {{ invoice.amount_paid }}</strong></span>
+                    {% if invoice.amount_refunded %}<span>Refunded: <strong>{{ currency }} {{ invoice.amount_refunded }}</strong></span>{% endif %}
+                    <span>Balance: <strong>{{ currency }} {{ invoice.balance }}</strong></span>
+                </div>
+            </div>
+
+            {% if payments or refunds %}
+            <p class="section-title">Payments and refunds</p>
+            <table class="display" style="width:100%">
+                <thead><tr><th>Date</th><th>Type</th><th>Amount ({{ currency }})</th><th>Narration</th><th>By</th></tr></thead>
+                <tbody>
+                    {% for payment in payments %}
+                    <tr><td>{{ payment.received_on|date:"DATETIME_FORMAT" }}</td><td>Payment</td><td>{{ payment.amount }}</td><td>{{ payment.narration|default:"" }}</td><td>{{ payment.received_by|default:"" }}</td></tr>
+                    {% endfor %}
+                    {% for refund in refunds %}
+                    <tr><td>{{ refund.created_on|date:"DATETIME_FORMAT" }}</td><td>Refund</td><td>{{ refund.amount }}</td><td>{{ refund.narration|default:"" }}</td><td>{{ refund.refunded_by|default:"" }}</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+
+            {% if editable %}
+            <div class="settings-grid no-print">
+                {% if invoice.status == "pending" %}
+                <div>
+                    <p class="section-title">Receive payment</p>
+                    {% include "utils/_form.html" with form=payment_form intent="payment" submit="Receive payment" %}
+                </div>
+                {% endif %}
+                {% if invoice.amount_paid > invoice.amount_refunded %}
+                <div>
+                    <p class="section-title">Refund</p>
+                    {% include "utils/_form.html" with form=refund_form intent="refund" submit="Refund" confirm="Refund this amount to the patient?" %}
+                </div>
+                {% endif %}
+                <div>
+                    <p class="section-title">Add item</p>
+                    {% include "utils/_form.html" with form=item_form intent="add_item" submit="Add item" %}
+                </div>
+            </div>
+
+            {% if unbilled %}
+            <div class="no-print">
+                <p class="section-title">Orders of this visit not yet invoiced</p>
+                <form method="post" class="app-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="intent" value="add_orders">
+                    <table class="display" style="width:100%">
+                        <thead><tr><th><input type="checkbox" data-check-all="items" aria-label="Select all"></th><th>Department</th><th>Item</th><th>Quantity</th><th>Total ({{ currency }})</th></tr></thead>
+                        <tbody>
+                            {% for item in unbilled %}
+                            <tr>
+                                <td><input type="checkbox" name="items" value="{{ item.source }}" aria-label="Add {{ item.description }}"></td>
+                                <td>{{ item.kind }}</td><td>{{ item.description }}</td><td>{{ item.quantity }}</td><td>{{ item.total }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <div class="form-actions"><button type="submit" class="accented">Add selected</button></div>
+                </form>
+            </div>
+            {% endif %}
+
+            <div class="no-print">
+                <p class="section-title">Invoice details</p>
+                {% include "utils/_form.html" with form=invoice_form intent="update_invoice" submit="Save details" %}
+                {% if can_cancel %}
+                <form method="post" class="form-actions" data-confirm="Cancel invoice {{ invoice.invoice_number }}? Its orders can then be invoiced again.">
+                    {% csrf_token %}
+                    <input type="hidden" name="intent" value="cancel">
+                    <button type="submit">Cancel invoice</button>
+                </form>
+                {% endif %}
+            </div>
+            {% endif %}
+        </section>
+    </main>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends '../utils/layout.html' %}
+{% block body_attributes %}data-remember-tab{% endblock %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <button type="button" class="accented section-togglers" data-section="current_inpatients" data-default>Current inpatients ({{ inpatients|length }})</button>
+                <button type="button" class="accented section-togglers" data-section="request_admission">Request admission</button>
+                <a class="button-link" href="{% url 'clinical:awaiting-admission' %}">Awaiting a bed ({{ awaiting_count }})</a>
+            </div>
+            <section class="variable-section" id="current_inpatients">
+                <p class="help-text">{{ beds_free }} of {{ beds_total }} beds free.</p>
+                {% include "./_inpatient_table.html" with empty="No patients are admitted. Request an admission, then assign a bed from Awaiting admission." %}
+            </section>
+            <section class="variable-section" id="request_admission">
+                <p class="help-text">Admission is requested on the patient's open visit, so bed days are billed with the rest of the visit. Emergency patients are admitted from the emergency queue.</p>
+                {% include "utils/_form.html" with form=admission_form intent="request" submit="Request admission" tab="request_admission" %}
+            </section>
+        </section>
+    </main>
+{% endblock %}

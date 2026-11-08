@@ -1,0 +1,23 @@
+<div class="row-actions">
+    <form method="post" class="inline-form">
+        {% csrf_token %}
+        <input type="hidden" name="intent" value="record">
+        <input type="hidden" name="tab" value="{{ tab }}">
+        <input type="hidden" name="invoice" value="{{ invoice.pk }}">
+        <input type="hidden" name="status" value="submitted">
+        <input class="input" name="cu_invoice_number" required placeholder="CU invoice number" aria-label="Control unit invoice number for {{ invoice.invoice_number }}">
+        <button type="submit" class="accented">Accepted</button>
+    </form>
+    <details class="row-popover">
+        <summary class="button-link">Failed</summary>
+        <form method="post" class="popover-form">
+            {% csrf_token %}
+            <input type="hidden" name="intent" value="record">
+            <input type="hidden" name="tab" value="{{ tab }}">
+            <input type="hidden" name="invoice" value="{{ invoice.pk }}">
+            <input type="hidden" name="status" value="failed">
+            <label class="stacked-field">Error from eTIMS <input class="input" name="error_message" required></label>
+            <button type="submit">Record failure</button>
+        </form>
+    </details>
+</div>

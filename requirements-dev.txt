@@ -1,0 +1,4 @@
+# Development and CI tooling, on top of the runtime dependencies
+-r requirements.txt
+PyYAML==6.0.2
+uritemplate==4.1.1

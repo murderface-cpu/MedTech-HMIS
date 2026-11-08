@@ -1,0 +1,65 @@
+{% extends '../utils/layout.html' %}
+{% load hmis %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <a class="button-link" href="{% url 'clinical:emergency-queue' %}">Emergency queue</a>
+            </div>
+            <form method="post" class="app-form">
+                {% csrf_token %}
+                <input type="hidden" name="intent" value="check_in">
+                {% for error in case_form.non_field_errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+                <fieldset class="form-fieldset">
+                    <legend>Triage category</legend>
+                    <div class="acuity-picker" role="radiogroup">
+                        {% for value, label in case_form.fields.acuity.choices %}{% if value %}
+                        <label class="acuity-option acuity-{{ value }}">
+                            <input type="radio" name="{{ case_form.acuity.html_name }}" value="{{ value }}" {% if case_form.acuity.value == value %}checked{% endif %} required>
+                            <span class="acuity-swatch" aria-hidden="true"></span>
+                            <span>{{ label }}</span>
+                        </label>
+                        {% endif %}{% endfor %}
+                    </div>
+                    {% for error in case_form.acuity.errors %}<small class="field-error">{{ error }}</small>{% endfor %}
+                </fieldset>
+                <fieldset class="form-fieldset">
+                    <legend>Patient</legend>
+                    <div class="form-grid">
+                        {% with field=case_form.patient %}{% include "utils/_field.html" %}{% endwith %}
+                    </div>
+                    <p class="help-text">Not registered, or not identified yet? Leave the patient empty and fill in what you know. An unidentified patient is recorded as Unknown Patient until the front desk updates the record.</p>
+                    <div class="form-grid">
+                        {% for field in case_form %}{% if field.name in "firstname lastname gender age telnumber" %}{% include "utils/_field.html" %}{% endif %}{% endfor %}
+                    </div>
+                </fieldset>
+                <fieldset class="form-fieldset">
+                    <legend>Arrival</legend>
+                    <div class="form-grid">
+                        {% for field in case_form %}{% if field.name in "arrival_mode chief_complaint attending notes" %}{% include "utils/_field.html" %}{% endif %}{% endfor %}
+                    </div>
+                </fieldset>
+                <div class="form-actions">
+                    <button type="submit" class="accented">Check in to emergency</button>
+                </div>
+            </form>
+
+            <p class="section-title">Arrivals today ({{ arrivals_today|length }})</p>
+            <table class="display datatable" data-empty="No emergency arrivals today." style="width:100%">
+                <thead><tr><th>Arrived</th><th>Case</th><th>Patient</th><th>Category</th><th>Complaint</th><th>Status</th></tr></thead>
+                <tbody>
+                    {% for case in arrivals_today %}
+                    <tr>
+                        <td data-order="{{ case.arrived_on|date:'c' }}">{{ case.arrived_on|time:"H:i" }}</td>
+                        <td>{{ case.case_number }}</td>
+                        <td>{{ case.patient }}</td>
+                        <td><span class="acuity-tag acuity-{{ case.acuity }}">{{ case.get_acuity_display }}</span></td>
+                        <td>{{ case.chief_complaint }}</td>
+                        <td><span class="status {{ case.status|tone }}">{{ case.get_status_display }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+    </main>
+{% endblock %}

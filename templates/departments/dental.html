@@ -1,0 +1,92 @@
+{% extends '../utils/layout.html' %}
+{% block body_attributes %}data-remember-tab{% endblock %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <button type="button" class="accented section-togglers" data-section="dental_patient" data-default>Patient</button>
+                <button type="button" class="accented section-togglers" data-section="dental_recent">Recent procedures</button>
+            </div>
+            <section class="variable-section" id="dental_patient">
+                <form method="get" class="filters">
+                    <input type="hidden" name="tab" value="dental_patient">
+                    <label>Active visit
+                        <select class="input" name="visit" required>
+                            <option value="">Select patient</option>
+                            {% for option in visits %}
+                            <option value="{{ option.pk }}" {% if visit and visit.pk == option.pk %}selected{% endif %}>{{ option.patient }} ({{ option.visit_id }})</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <button type="submit" class="accented">Open</button>
+                </form>
+                {% if visit %}
+                <p class="section-title">{{ visit.patient }} &middot; {{ visit.visit_id }}</p>
+                {% if visit_procedures %}
+                <table class="display" style="width:100%">
+                    <thead><tr><th>Date</th><th>Tooth</th><th>Diagnosis</th><th>Procedure</th><th>Fee ({{ currency }})</th><th>Observations</th><th>By</th><th></th></tr></thead>
+                    <tbody>
+                        {% for row in visit_procedures %}
+                        {% with procedure=row.procedure %}
+                        <tr>
+                            <td>{{ procedure.performed_on|date:"DATETIME_FORMAT" }}</td>
+                            <td>{{ procedure.tooth }}</td>
+                            <td>{{ procedure.diagnosis }}</td>
+                            <td>{{ procedure.procedure.name }}</td>
+                            <td>{{ procedure.fee }}</td>
+                            <td>{{ procedure.observations|default:"" }}</td>
+                            <td>{{ procedure.created_by|default:"" }}</td>
+                            <td>
+                                {% if row.billed %}Invoiced{% else %}
+                                <form method="post" data-confirm="Remove this procedure?">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="intent" value="remove">
+                                    <input type="hidden" name="tab" value="dental_patient">
+                                    <input type="hidden" name="procedure" value="{{ procedure.pk }}">
+                                    <button type="submit">Remove</button>
+                                </form>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endwith %}
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% endif %}
+                <p class="section-title">Record procedure</p>
+                <form method="post" class="app-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="intent" value="record">
+                    <input type="hidden" name="tab" value="dental_patient">
+                    <input type="hidden" name="visit" value="{{ visit.pk }}">
+                    {% for error in procedure_form.non_field_errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+                    <div class="form-grid">
+                        {% for field in procedure_form.visible_fields %}
+                            {% include "utils/_field.html" %}
+                        {% endfor %}
+                    </div>
+                    <div class="form-actions"><button type="submit" class="accented">Record procedure</button></div>
+                </form>
+                {% endif %}
+            </section>
+            <section class="variable-section" id="dental_recent">
+                <table class="display datatable" style="width:100%">
+                    <thead><tr><th>Date</th><th>Patient</th><th>Tooth</th><th>Diagnosis</th><th>Procedure</th><th>Fee ({{ currency }})</th><th>By</th></tr></thead>
+                    <tbody>
+                        {% for procedure in recent %}
+                        <tr data-href="?tab=dental_patient&amp;visit={{ procedure.visit_id }}">
+                            <td data-order="{{ procedure.performed_on|date:'c' }}">{{ procedure.performed_on|date:"DATETIME_FORMAT" }}</td>
+                            <td>{{ procedure.visit.patient }}</td>
+                            <td>{{ procedure.tooth }}</td>
+                            <td>{{ procedure.diagnosis }}</td>
+                            <td>{{ procedure.procedure.name }}</td>
+                            <td>{{ procedure.fee }}</td>
+                            <td>{{ procedure.created_by|default:"" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+        </section>
+    </main>
+{% endblock %}

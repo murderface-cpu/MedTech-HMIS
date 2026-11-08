@@ -1,0 +1,23 @@
+<section class="variable-section" id="diagnosis">
+  <form id="diagnosis_form" class="section-form app-form">
+    <div class="form-grid">
+      <div class="form-control flex flex-column">
+        <label for="diagnosis_name">Diagnosis</label>
+        <input class="input" type="text" id="diagnosis_name" name="diagnosis" maxlength="256" required>
+      </div>
+      <div class="form-control flex flex-column">
+        <label for="diagnosis_notes">Notes</label>
+        <textarea class="input" id="diagnosis_notes" name="notes" rows="2"></textarea>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="accented">Add diagnosis</button>
+    </div>
+  </form>
+  <table id="diagnosis_table" class="display" style="width:100%">
+    <thead>
+      <tr><th>Diagnosis</th><th>Notes</th><th>By</th><th>Date</th><th></th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</section>

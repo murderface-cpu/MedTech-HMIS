@@ -1,0 +1,41 @@
+{% extends '../utils/layout.html' %}
+{% block body_attributes %}data-auto-refresh="60"{% endblock %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="board-toolbar">
+                <p class="help-text" aria-live="polite">{{ total_active }} patient{{ total_active|pluralize }} on open visits &middot; updated {{ refreshed_on|time:"H:i" }}, refreshes every minute</p>
+                <a class="button-link" href="{% url 'patients:patients-visits' %}">Visits and check-in</a>
+            </div>
+            {% if total_active %}
+            <div class="queue-board" role="list">
+                {% for column in columns %}
+                <section class="queue-column" role="listitem" aria-labelledby="stage-{{ column.key }}">
+                    <header class="queue-column-head">
+                        <h2 id="stage-{{ column.key }}">{{ column.label }}</h2>
+                        <span class="count-badge" aria-label="{{ column.visits|length }} patients">{{ column.visits|length }}</span>
+                    </header>
+                    <ol class="queue-cards" role="list">
+                        {% for visit in column.visits %}
+                        <li class="queue-card{% if visit.waiting_minutes > 60 and column.key != 'done' %} is-long-wait{% endif %}">
+                            <p class="queue-card-name">{{ visit.patient }}</p>
+                            <p class="queue-card-meta">{{ visit.visit_id }} &middot; {{ visit.patient.gender }}, {{ visit.patient.age }}</p>
+                            <p class="queue-card-meta">{{ visit.category }}{% if visit.doctor %} &middot; {{ visit.doctor }}{% endif %}</p>
+                            <p class="queue-card-wait">
+                                {% if visit.waiting_minutes > 60 and column.key != 'done' %}<i class="fa fa-clock-o" aria-hidden="true"></i> {% endif %}
+                                {% if visit.waiting_minutes < 60 %}{{ visit.waiting_minutes }} min at this step{% else %}{% widthratio visit.waiting_minutes 60 1 %} h at this step{% endif %}
+                            </p>
+                        </li>
+                        {% empty %}
+                        <li class="queue-empty">Nobody</li>
+                        {% endfor %}
+                    </ol>
+                </section>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="empty-state">No open visits. Patients appear here once the front desk opens a visit, and move along as each department finishes its part.</p>
+            {% endif %}
+        </section>
+    </main>
+{% endblock %}

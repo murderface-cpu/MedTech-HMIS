@@ -1,0 +1,68 @@
+{% comment %}
+The application menu, built by apps.manager.navigation. Workspaces fold open with <details>; the
+one holding the current page starts open. Planned pages are listed but not linked.
+{% endcomment %}
+<nav class="app-nav" id="app-nav" aria-label="Main">
+    <div class="app-nav-brand">
+        <span class="app-nav-mark" aria-hidden="true"><i class="fa fa-plus"></i></span>
+        <span class="app-nav-names">
+            <strong>{{ application_short_name }}</strong>
+            <span>{{ hospital_name }}</span>
+        </span>
+    </div>
+
+    <div class="app-nav-find">
+        <i class="fa fa-search" aria-hidden="true"></i>
+        <input type="search" class="app-nav-find-input" placeholder="Find a page" aria-label="Find a page" autocomplete="off" data-nav-filter>
+        <kbd aria-hidden="true">/</kbd>
+    </div>
+
+    <div class="app-nav-scroll">
+        {% for workspace in menu %}
+        <details class="nav-workspace{% if workspace.all_planned %} is-planned-group{% endif %}" data-workspace="{{ workspace.label }}" {% if workspace.current %}open data-current{% endif %}>
+            <summary class="nav-workspace-label">
+                <i class="fa fa-fw {{ workspace.icon }}" aria-hidden="true"></i>
+                <span>{{ workspace.label }}</span>
+                <i class="fa fa-angle-right nav-chevron" aria-hidden="true"></i>
+            </summary>
+            {% for section in workspace.sections %}
+            <div class="nav-section{% if section.all_planned %} is-planned-group{% endif %}">
+                <p class="nav-section-label">{{ section.label }}</p>
+                <ul role="list">
+                    {% for page in section.pages %}
+                    <li>
+                        {% if page.planned %}
+                        <span class="nav-page is-planned" aria-disabled="true" title="Planned: {{ page.route }}">
+                            <span class="nav-page-label">{{ page.label }}</span>
+                            <span class="nav-tag">Planned</span>
+                        </span>
+                        {% else %}
+                        <a class="nav-page" href="{{ page.url }}" data-path="{{ page.path }}" data-tab="{{ page.tab }}"
+                           data-workspace="{{ page.workspace }}" data-section-label="{{ page.section }}"
+                           {% if page.current %}aria-current="page"{% endif %}>
+                            <span class="nav-page-label">{{ page.label }}</span>
+                        </a>
+                        {% endif %}
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endfor %}
+        </details>
+        {% endfor %}
+        <p class="nav-empty" hidden data-nav-empty>No page matches.</p>
+    </div>
+
+    <div class="app-nav-footer">
+        <label class="nav-planned-toggle">
+            <input type="checkbox" data-toggle-planned checked>
+            <span>Show planned pages</span>
+        </label>
+        <div class="nav-user">
+            <span class="nav-avatar" aria-hidden="true">{{ user.get_username|slice:":2"|upper }}</span>
+            <span class="nav-user-name">{{ user.get_full_name|default:user.get_username }}</span>
+            <a class="icon-button" href="{% url 'manager:password-change' %}" title="Change password" aria-label="Change password"><i class="fa fa-key"></i></a>
+            <button type="button" class="icon-button" data-action="sign-out" title="Sign out" aria-label="Sign out"><i class="fa fa-sign-out"></i></button>
+        </div>
+    </div>
+</nav>

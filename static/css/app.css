@@ -1,0 +1,286 @@
+/* Shared styles for the server-rendered module pages. Colours follow components.css. */
+
+a.button-link {
+  display: grid;
+  place-items: center;
+  padding: 10px 15px;
+  color: hsl(0, 0%, 95%);
+  text-decoration: none;
+}
+a.button-link.accented {
+  background-color: #1da1f2;
+}
+a.button-link.accented:hover {
+  background-color: hsl(203, 89%, 40%);
+}
+
+.flash-messages {
+  list-style: none;
+  margin: 0.5rem 0.5rem 0;
+  padding: 0;
+  display: grid;
+  gap: 0.25rem;
+}
+.flash-message {
+  padding: 0.6rem 1rem;
+  border: 1px solid hsl(203, 60%, 82%);
+  border-radius: 0.375rem;
+  background-color: hsl(203, 89%, 96%);
+  color: hsl(203, 60%, 22%);
+  font-size: 0.9rem;
+}
+.flash-message.success { border-color: hsl(145, 45%, 75%); background-color: hsl(145, 60%, 95%); color: hsl(145, 60%, 20%); }
+.flash-message.error { border-color: hsl(0, 65%, 82%); background-color: hsl(0, 80%, 97%); color: hsl(0, 65%, 32%); }
+.flash-message.warning { border-color: hsl(38, 80%, 75%); background-color: hsl(38, 95%, 95%); color: hsl(30, 80%, 25%); }
+
+.field-error {
+  color: hsl(0, 72%, 45%);
+  font-size: 0.8rem;
+}
+.input.error,
+.input:invalid:not(:placeholder-shown) {
+  border-color: hsl(0, 72%, 51%);
+}
+
+.app-form .form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: 0.75rem 1.5rem;
+}
+.app-form .form-grid .form-control:has(textarea) {
+  grid-column: 1 / -1;
+}
+.app-form .checkbox-control {
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem;
+}
+.app-form .checkbox-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+  list-style: none;
+  padding: 0;
+}
+.app-form .multiple-choice {
+  grid-column: 1 / -1;
+}
+.app-form .multiple-choice > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1.25rem;
+}
+.app-form .multiple-choice label {
+  font-weight: normal;
+}
+.lab-results input.abnormal {
+  border-color: hsl(0, 72%, 51%);
+  background-color: hsl(0, 72%, 96%);
+  font-weight: 600;
+}
+.lab-results fieldset {
+  margin-block-end: 0.75rem;
+}
+.help-text {
+  color: hsl(0, 0%, 45%);
+  font-size: 0.8rem;
+}
+.app-form .input,
+.app-form input:not([type="checkbox"]):not([type="radio"]):not([type="hidden"]),
+.app-form select,
+.app-form textarea {
+  padding: 6px;
+  border: 1px solid #e1e4e8;
+  border-radius: 3px;
+  font: inherit;
+}
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+}
+.form-actions button,
+.inline-form button {
+  padding: 6px 18px;
+}
+
+.record-date {
+  margin-inline-end: auto;
+  color: hsl(0, 0%, 35%);
+}
+.section-form {
+  margin-block-end: 1rem;
+}
+.main-cta-section button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.inline-form {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+.inline-form .input {
+  padding: 4px 6px;
+  border: 1px solid hsl(0, 0%, 85%);
+  max-inline-size: 9rem;
+}
+
+.section-title {
+  color: #0072C6;
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0.5rem 0;
+}
+.section-subtitle {
+  color: hsl(0, 0%, 40%);
+  font-size: 0.85rem;
+  margin: 0 0 0.5rem;
+}
+
+.empty-state {
+  padding: 1.5rem;
+  text-align: center;
+  color: hsl(0, 0%, 45%);
+  border: 1px dashed hsl(0, 0%, 85%);
+  background-color: white;
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-end;
+  margin-block-end: 0.75rem;
+}
+.filters label {
+  display: grid;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+}
+.filters .input {
+  padding: 6px;
+  border: 1px solid #e1e4e8;
+  border-radius: 3px;
+}
+
+.totals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: flex-end;
+  padding: 0.5rem 0;
+  font-size: 0.9rem;
+}
+.totals strong {
+  color: #0072C6;
+}
+
+.status {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  background-color: hsl(0, 0%, 93%);
+}
+.status.pending, .status.scheduled { background-color: hsl(38, 92%, 90%); }
+.status.paid, .status.completed { background-color: hsl(145, 63%, 88%); }
+.status.cancelled { background-color: hsl(0, 72%, 92%); }
+
+table.datatable tbody tr[data-href] {
+  cursor: pointer;
+}
+table tbody tr.selected td {
+  background-color: hsl(203, 89%, 92%);
+}
+
+.line-items .input {
+  inline-size: 100%;
+}
+
+.report {
+  display: grid;
+  gap: 0.5rem;
+  background-color: white;
+  padding: 1rem;
+  border: 1px solid hsl(0, 0%, 90%);
+}
+.report dt {
+  font-weight: 600;
+  color: #0072C6;
+}
+.report dd {
+  margin: 0 0 0.5rem;
+  white-space: pre-wrap;
+}
+
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+  gap: 0.75rem;
+  margin-block-end: 1rem;
+}
+.summary-cards > div {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.75rem 1rem;
+  background-color: white;
+  border: 1px solid hsl(0, 0%, 90%);
+  border-radius: 0.375rem;
+}
+.summary-cards small {
+  color: hsl(0, 0%, 40%);
+}
+.summary-cards strong {
+  font-size: 1.1rem;
+  color: #0072C6;
+}
+
+.invoice-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.invoice-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: 0.5rem 1rem;
+}
+
+@media print {
+  .app-nav, .app-topbar, .nav-backdrop, .main-cta-section, .flash-messages, .no-print,
+  .form-actions, .filters, .dataTables_filter, .dataTables_length, .dataTables_paginate, .dataTables_info {
+    display: none !important;
+  }
+  main, main.split {
+    display: block;
+  }
+}
+
+.narrow-content {
+  max-inline-size: 48rem;
+  padding: 1rem;
+}
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr));
+  gap: 1.5rem;
+}
+.lookup-list {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 0.5rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+.lookup-list li {
+  padding: 2px 10px;
+  border-radius: 999px;
+  background-color: hsl(203, 89%, 95%);
+  font-size: 0.85rem;
+}

@@ -1,0 +1,52 @@
+{% extends '../utils/layout.html' %}
+{% block body_attributes %}data-remember-tab{% endblock %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <button type="button" class="accented section-togglers" data-section="pending_requests" data-default>Pending requests ({{ pending_requests|length }})</button>
+                <button type="button" class="accented section-togglers" data-section="handled_requests">Handled requests</button>
+                <button type="button" class="accented section-togglers" data-section="test_catalogue">Tests</button>
+                <button type="button" class="accented section-togglers" data-section="add_test">Add test</button>
+            </div>
+            <section class="variable-section" id="pending_requests">
+                {% include "./_request_table.html" with requests=pending_requests empty="No lab requests are waiting. New requests appear here when a doctor orders tests." %}
+            </section>
+            <section class="variable-section" id="handled_requests">
+                {% include "./_request_table.html" with requests=handled_requests empty="No requests handled yet." %}
+            </section>
+            <section class="variable-section" id="test_catalogue">
+                {% if tests %}
+                <table class="display datatable" style="width:100%">
+                    <thead><tr><th>Test</th><th>Category</th><th>Price</th><th>Normal range</th><th>Parameters</th></tr></thead>
+                    <tbody>
+                        {% for test in tests %}
+                        <tr data-href="{% url 'lab:lab-test' test.pk %}">
+                            <td>{{ test.name }}</td>
+                            <td>{{ test.category }}</td>
+                            <td>{{ test.currency }} {{ test.price|default_if_none:"" }}</td>
+                            <td>{{ test.dafault_range|default:"" }}</td>
+                            <td>{{ test.parameters.all|join:", " }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="empty-state">No tests in the catalogue yet. Use Add Test to create one.</p>
+                {% endif %}
+            </section>
+            <section class="variable-section" id="add_test">
+                {% if test_categories %}
+                {% include "utils/_form.html" with form=test_form intent="add_test" submit="Add test" tab="add_test" %}
+                {% else %}
+                <p class="empty-state">Add a test category first.</p>
+                {% endif %}
+                <p class="section-title">Test categories</p>
+                <ul class="lookup-list">
+                    {% for category in test_categories %}<li>{{ category.name }}</li>{% empty %}<li>None yet</li>{% endfor %}
+                </ul>
+                {% include "utils/_form.html" with form=category_form intent="add_category" submit="Add category" tab="add_test" %}
+            </section>
+        </section>
+    </main>
+{% endblock %}

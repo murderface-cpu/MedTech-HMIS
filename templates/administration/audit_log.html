@@ -1,0 +1,70 @@
+{% extends '../utils/layout.html' %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <form method="get" class="filters">
+                <label>Who
+                    <select class="input" name="user">
+                        <option value="">Anyone</option>
+                        {% for username in usernames %}<option value="{{ username }}" {% if filters.user == username %}selected{% endif %}>{{ username }}</option>{% endfor %}
+                    </select>
+                </label>
+                <label>Action
+                    <select class="input" name="action">
+                        <option value="">Any action</option>
+                        {% for value, label in action_choices %}<option value="{{ value }}" {% if filters.action == value %}selected{% endif %}>{{ label }}</option>{% endfor %}
+                    </select>
+                </label>
+                <label>Record type
+                    <select class="input" name="model">
+                        <option value="">Any record</option>
+                        {% for record_type in record_types %}<option value="{{ record_type }}" {% if filters.model == record_type %}selected{% endif %}>{{ record_type }}</option>{% endfor %}
+                    </select>
+                </label>
+                <label>From <input class="input" type="date" name="start" value="{{ filters.start }}"></label>
+                <label>To <input class="input" type="date" name="end" value="{{ filters.end }}"></label>
+                <label>Contains <input class="input" type="search" name="q" value="{{ filters.q }}" placeholder="Name or number"></label>
+                <button type="submit" class="accented">Filter</button>
+                {% if query %}<a class="button-link" href="{% url 'manager:audit-log' %}">Clear</a>{% endif %}
+            </form>
+
+            {% if page.object_list %}
+            <table class="display audit-table" style="width:100%">
+                <thead><tr><th>When</th><th>Who</th><th>Action</th><th>Record</th><th>Details</th><th>From</th></tr></thead>
+                <tbody>
+                    {% for entry in page.object_list %}
+                    <tr>
+                        <td class="nowrap">{{ entry.created_on|date:"j M Y, H:i:s" }}</td>
+                        <td>{{ entry.username|default:"System" }}</td>
+                        <td><span class="status {% if entry.action == 'delete' or entry.action == 'sign_in_failed' %}tone-bad{% elif entry.action == 'create' %}tone-ok{% elif entry.action == 'update' %}tone-info{% else %}tone-neutral{% endif %}">{{ entry.get_action_display }}</span></td>
+                        <td>{{ entry.model }}{% if entry.object_id %} <small class="help-text">#{{ entry.object_id }}</small>{% endif %}<br><span class="help-text">{{ entry.summary }}</span></td>
+                        <td>
+                            {% if entry.changes.changed %}
+                            <details class="change-list">
+                                <summary>{{ entry.changes.changed|length }} field{{ entry.changes.changed|length|pluralize }} changed</summary>
+                                <dl>{% for field, values in entry.changes.changed.items %}<div><dt>{{ field }}</dt><dd><span class="was">{{ values.0|default_if_none:"empty" }}</span> to <span class="now">{{ values.1|default_if_none:"empty" }}</span></dd></div>{% endfor %}</dl>
+                            </details>
+                            {% elif entry.changes.after %}
+                            <details class="change-list"><summary>Values recorded</summary><dl>{% for field, value in entry.changes.after.items %}{% if value is not None and value != "" %}<div><dt>{{ field }}</dt><dd>{{ value }}</dd></div>{% endif %}{% endfor %}</dl></details>
+                            {% elif entry.changes.before %}
+                            <details class="change-list"><summary>Values before deletion</summary><dl>{% for field, value in entry.changes.before.items %}<div><dt>{{ field }}</dt><dd>{{ value|default_if_none:"empty" }}</dd></div>{% endfor %}</dl></details>
+                            {% endif %}
+                        </td>
+                        <td class="help-text">{{ entry.ip_address|default:"" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <nav class="pager" aria-label="Audit log pages">
+                <span class="help-text">{{ page.start_index }} to {{ page.end_index }} of {{ page.paginator.count }}</span>
+                <span class="pager-links">
+                    {% if page.has_previous %}<a class="button-link" href="?{{ query }}{% if query %}&amp;{% endif %}page={{ page.previous_page_number }}">Newer</a>{% endif %}
+                    {% if page.has_next %}<a class="button-link" href="?{{ query }}{% if query %}&amp;{% endif %}page={{ page.next_page_number }}">Older</a>{% endif %}
+                </span>
+            </nav>
+            {% else %}
+            <p class="empty-state">{% if query %}No entries match these filters. Widen the dates or clear a filter.{% else %}Nothing recorded yet. Every change to a record and every sign-in is written here.{% endif %}</p>
+            {% endif %}
+        </section>
+    </main>
+{% endblock %}

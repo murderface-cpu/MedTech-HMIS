@@ -1,0 +1,25 @@
+{% comment %}
+A single-series column chart from apps.reports.metrics.column_chart. Pass chart, name (what one column counts, e.g. "visits"), unit (optional prefix such as KES).
+Each column is focusable and names its day and value; the table view below carries every figure.
+{% endcomment %}
+<div class="col-chart">
+    <div class="col-axis" aria-hidden="true">
+        {% for tick in chart.ticks %}<span class="col-tick" style="--at: {{ tick.at }}%">{{ tick.value }}</span>{% endfor %}
+    </div>
+    <ol class="col-plot" role="list" aria-label="{{ name|capfirst }} per day">
+        {% for column in chart.columns %}
+        <li class="col{% if column.is_today %} is-today{% endif %}{% if column.empty %} is-empty{% endif %}" tabindex="0" style="--h: {{ column.height }}%" aria-label="{{ column.label }}: {% if unit %}{{ unit }} {% endif %}{{ column.value }} {{ name }}">
+            <span class="col-bar"></span>
+            <span class="col-tip" aria-hidden="true"><strong>{% if unit %}{{ unit }} {% endif %}{{ column.value }}</strong>{{ column.label }}</span>
+            <span class="col-label" aria-hidden="true">{{ column.tick }}</span>
+        </li>
+        {% endfor %}
+    </ol>
+</div>
+<details class="chart-table">
+    <summary>Show as a table</summary>
+    <table class="display">
+        <thead><tr><th>Day</th><th class="num">{{ name|capfirst }}{% if unit %} ({{ unit }}){% endif %}</th></tr></thead>
+        <tbody>{% for column in chart.columns %}<tr><td>{{ column.label }}</td><td class="num">{{ column.value }}</td></tr>{% endfor %}</tbody>
+    </table>
+</details>

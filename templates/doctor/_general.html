@@ -1,0 +1,40 @@
+<section class="variable-section" id="general_doctor">
+  <div class="section_cta_area">
+    <button type="button" class="section-part-toggler" data-section="doctor_triage">Triage</button>
+    <button type="button" class="section-part-toggler" data-section="doctor_allergies">Allergies</button>
+  </div>
+  <div class="variable-section-part inview" id="doctor_triage">
+    <form id="doctor_triage_form" class="section-form">
+      {% include "patients/utils/modals/_triage_fields.html" %}
+      <div class="form-actions">
+        <small class="record-date" id="triage_date"></small>
+        <button type="submit" class="accented">Save triage</button>
+      </div>
+    </form>
+  </div>
+  <div class="variable-section-part" id="doctor_allergies">
+    <form id="allergy_form" class="section-form app-form">
+      <p class="section-title">Allergies</p>
+      <div class="form-grid">
+        <div class="form-control flex flex-column">
+          <label for="allergy_name">Allergy</label>
+          <input class="input" type="text" id="allergy_name" name="name" maxlength="256" required>
+        </div>
+        <div class="form-control flex flex-column">
+          <label for="allergy_comment">Doctor's comments</label>
+          <textarea class="input" id="allergy_comment" name="comment" rows="2"></textarea>
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="button" id="allergy_form_reset" hidden>Cancel edit</button>
+        <button type="submit" class="accented">Save allergy</button>
+      </div>
+    </form>
+    <table id="allergies_table" class="display" style="width:100%">
+      <thead>
+        <tr><th>Allergy</th><th>Comments</th><th>Recorded</th><th></th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+</section>

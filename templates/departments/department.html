@@ -1,0 +1,32 @@
+{% extends '../utils/layout.html' %}
+{% block body_attributes %}data-remember-tab{% endblock %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <button type="button" class="accented section-togglers" data-section="pending_examinations" data-default>Pending ({{ pending|length }})</button>
+                <button type="button" class="accented section-togglers" data-section="completed_examinations">Reported</button>
+                <button type="button" class="accented section-togglers" data-section="department_services">Examinations offered</button>
+            </div>
+            <section class="variable-section" id="pending_examinations">
+                {% include "./_request_table.html" with requests=pending empty="No requests are waiting. New requests appear here when a doctor orders an examination." %}
+            </section>
+            <section class="variable-section" id="completed_examinations">
+                {% include "./_request_table.html" with requests=completed empty="No examinations completed yet." %}
+            </section>
+            <section class="variable-section" id="department_services">
+                <p class="section-subtitle">{{ department_label }} examinations and their fees are managed under Pricing.</p>
+                <table class="display" style="width:100%">
+                    <thead><tr><th>Code</th><th>Examination</th><th>Fee ({{ currency }})</th><th>Offered</th></tr></thead>
+                    <tbody>
+                        {% for service in services %}
+                        <tr><td>{{ service.code }}</td><td>{{ service.name }}</td><td>{{ service.fee }}</td><td>{{ service.is_active|yesno:"Yes,No" }}</td></tr>
+                        {% empty %}
+                        <tr><td colspan="4">No {{ department_label|lower }} examinations priced yet.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+        </section>
+    </main>
+{% endblock %}

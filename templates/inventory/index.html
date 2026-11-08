@@ -1,0 +1,89 @@
+{% extends '../utils/layout.html' %}
+{% block body_attributes %}data-remember-tab{% endblock %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <button type="button" class="accented section-togglers" data-section="drug_list" data-default>Drugs</button>
+                <button type="button" class="accented section-togglers" data-section="receive_stock">Receive stock</button>
+                <button type="button" class="accented section-togglers" data-section="stock_batches">Stock received</button>
+                <button type="button" class="accented section-togglers" data-section="add_drug">Add drug</button>
+                <button type="button" class="accented section-togglers" data-section="suppliers">Suppliers</button>
+            </div>
+            <section class="variable-section" id="drug_list">
+                {% if drugs %}
+                <table class="display datatable" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Drug no.</th><th>Name</th><th>Category</th><th>Supplier</th><th>Unit price ({{ currency }})</th>
+                            <th>In stock</th><th>Expired</th><th>Next expiry</th><th>Active</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for drug in drugs %}
+                        <tr data-href="{% url 'manager:manager-drug' drug.pk %}">
+                            <td>{{ drug.drug_number }}</td>
+                            <td>{{ drug.name }}</td>
+                            <td>{{ drug.category }}</td>
+                            <td>{{ drug.supplier|default:"" }}</td>
+                            <td>{{ drug.unit_price }}</td>
+                            <td>{{ drug.stock_available }}</td>
+                            <td>{{ drug.stock_expired }}</td>
+                            <td>{{ drug.next_expiry|default:"" }}</td>
+                            <td>{{ drug.is_active|yesno:"Yes,No" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="empty-state">No drugs in the catalogue yet. Use Add Drug to create one.</p>
+                {% endif %}
+            </section>
+            <section class="variable-section" id="receive_stock">
+                {% include "utils/_form.html" with form=stock_form intent="receive_stock" submit="Receive stock" tab="receive_stock" %}
+            </section>
+            <section class="variable-section" id="stock_batches">
+                <table class="display datatable" data-empty="No stock received yet. Receive stock to add a batch." style="width:100%">
+                    <thead>
+                        <tr><th>Received</th><th>Drug</th><th>Supplier</th><th>Quantity</th><th>Remaining</th><th>Expiry</th><th>Received by</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for batch in batches %}
+                        <tr>
+                            <td data-order="{{ batch.received_on|date:'c' }}">{{ batch.received_on|date:"DATETIME_FORMAT" }}</td>
+                            <td>{{ batch.drug }}</td>
+                            <td>{{ batch.supplier|default:"" }}</td>
+                            <td>{{ batch.quantity_received }}</td>
+                            <td>{{ batch.quantity_remaining }}</td>
+                            <td>{{ batch.expiry_date|default:"" }}</td>
+                            <td>{{ batch.received_by|default:"" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+            <section class="variable-section" id="add_drug">
+                {% include "utils/_form.html" with form=drug_form intent="add_drug" submit="Add drug" tab="add_drug" %}
+                <p class="section-title">Drug categories</p>
+                <ul class="lookup-list">
+                    {% for category in drug_categories %}<li>{{ category.name }}</li>{% empty %}<li>None yet</li>{% endfor %}
+                </ul>
+                {% include "utils/_form.html" with form=category_form intent="add_category" submit="Add category" tab="add_drug" %}
+            </section>
+            <section class="variable-section" id="suppliers">
+                {% if suppliers %}
+                <table class="display datatable" style="width:100%">
+                    <thead><tr><th>Supplier</th><th>Telephone</th><th>Email</th><th>Address</th></tr></thead>
+                    <tbody>
+                        {% for supplier in suppliers %}
+                        <tr><td>{{ supplier.name }}</td><td>{{ supplier.telephone|default:"" }}</td><td>{{ supplier.email|default:"" }}</td><td>{{ supplier.address|default:"" }}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% endif %}
+                <p class="section-title">Add supplier</p>
+                {% include "utils/_form.html" with form=supplier_form intent="add_supplier" submit="Add supplier" tab="suppliers" %}
+            </section>
+        </section>
+    </main>
+{% endblock %}

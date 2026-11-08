@@ -1,0 +1,39 @@
+{% extends '../utils/layout.html' %}
+{% load hmis %}
+{% block body_attributes %}data-remember-tab{% endblock %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <button type="button" class="accented section-togglers" data-section="new_adjustment" data-default>Adjust a batch</button>
+                <button type="button" class="accented section-togglers" data-section="adjustment_history">History ({{ adjustments|length }})</button>
+                <a class="button-link" href="{% url 'departments:short-expiry' %}?tab=expired_stock">Expired stock</a>
+            </div>
+            <section class="variable-section" id="new_adjustment">
+                <p class="help-text">Record what is physically on the shelf. Sales and dispensing are not adjustments; they are recorded at the pharmacy.</p>
+                {% include "utils/_form.html" with form=adjustment_form intent="adjust" submit="Record adjustment" tab="new_adjustment" %}
+            </section>
+            <section class="variable-section" id="adjustment_history">
+                <p class="help-text">Value of stock written down in this list: <strong>{{ currency }} {{ written_off_value|money }}</strong>.</p>
+                <table class="display datatable" data-empty="No adjustments yet." style="width:100%">
+                    <thead><tr><th>When</th><th>Drug</th><th>Batch</th><th>Reason</th><th class="num">Before</th><th class="num">Change</th><th class="num">After</th><th>Notes</th><th>By</th></tr></thead>
+                    <tbody>
+                        {% for adjustment in adjustments %}
+                        <tr>
+                            <td data-order="{{ adjustment.adjusted_on|date:'c' }}">{{ adjustment.adjusted_on|date:"DATETIME_FORMAT" }}</td>
+                            <td>{{ adjustment.batch.drug.name }}</td>
+                            <td>{{ adjustment.batch.pk }}{% if adjustment.batch.expiry_date %} <small class="help-text">exp. {{ adjustment.batch.expiry_date|date:"M Y" }}</small>{% endif %}</td>
+                            <td>{{ adjustment.get_reason_display }}</td>
+                            <td class="num">{{ adjustment.quantity_before }}</td>
+                            <td class="num"><span class="{% if adjustment.quantity_change < 0 %}figure-down{% else %}figure-up{% endif %}">{% if adjustment.quantity_change > 0 %}+{% endif %}{{ adjustment.quantity_change }}</span></td>
+                            <td class="num">{{ adjustment.quantity_after }}</td>
+                            <td>{{ adjustment.notes }}</td>
+                            <td>{{ adjustment.adjusted_by|default:"" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+        </section>
+    </main>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends '../utils/layout.html' %}
+{% load hmis %}
+{% block page_title %}{{ account.bank_name }} {{ account.masked_number }}{% endblock %}
+{% block body_attributes %}data-remember-tab{% endblock %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <button type="button" class="accented section-togglers" data-section="bank_statement" data-default>Statement</button>
+                <button type="button" class="accented section-togglers" data-section="record_transaction">Record a deposit or withdrawal</button>
+                <button type="button" class="accented section-togglers" data-section="bank_details">Account details</button>
+                <a class="button-link" href="{% url 'finance:banks' %}">All bank accounts</a>
+            </div>
+            <div class="summary-cards">
+                <div><small>Account</small><strong>{{ account.account_name }}</strong></div>
+                <div><small>Opening balance, {{ account.opened_on|date:"j M Y" }}</small><strong>{{ account.opening_balance|money }}</strong></div>
+                <div><small>Recorded balance</small><strong>{{ account.currency }} {{ account.balance|money }}</strong></div>
+            </div>
+            <section class="variable-section" id="bank_statement">
+                <table class="display datatable" data-empty="No deposits or withdrawals recorded." style="width:100%">
+                    <thead><tr><th>Date</th><th>Reference</th><th>Narration</th><th class="num">Deposit</th><th class="num">Withdrawal</th><th class="num">Balance</th><th>By</th></tr></thead>
+                    <tbody>
+                        {% for row in rows %}
+                        <tr>
+                            <td data-order="{{ row.item.transacted_on|date:'c' }}{{ row.item.pk|stringformat:'08d' }}">{{ row.item.transacted_on|date:"j M Y" }}</td>
+                            <td>{{ row.item.reference }}</td>
+                            <td>{{ row.item.narration }}</td>
+                            <td class="num">{% if row.item.kind == "deposit" %}{{ row.item.amount|money }}{% endif %}</td>
+                            <td class="num">{% if row.item.kind == "withdrawal" %}{{ row.item.amount|money }}{% endif %}</td>
+                            <td class="num">{{ row.balance|money }}</td>
+                            <td>{{ row.item.recorded_by|default:"" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+            <section class="variable-section" id="record_transaction">
+                {% include "utils/_form.html" with form=transaction_form intent="record" submit="Record" tab="record_transaction" %}
+            </section>
+            <section class="variable-section" id="bank_details">
+                {% include "utils/_form.html" with form=bank_form intent="update" submit="Save account" tab="bank_details" %}
+            </section>
+        </section>
+    </main>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends '../utils/layout.html' %}
+{% block body_attributes %}data-remember-tab{% endblock %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <button type="button" class="accented section-togglers" data-section="insurance_companies" data-default>Insurance companies</button>
+                <button type="button" class="accented section-togglers" data-section="account_companies">Account companies</button>
+                <button type="button" class="accented section-togglers" data-section="billing_types">Billing types</button>
+            </div>
+            <section class="variable-section" id="insurance_companies">
+                {% include "./_company_table.html" with rows=insurance_companies %}
+                <p class="section-title">Add insurance company</p>
+                {% include "utils/_form.html" with form=insurance_form intent="add_insurance" submit="Add company" tab="insurance_companies" %}
+            </section>
+            <section class="variable-section" id="account_companies">
+                {% include "./_company_table.html" with rows=account_companies %}
+                <p class="section-title">Add account company</p>
+                {% include "utils/_form.html" with form=account_form intent="add_account" submit="Add company" tab="account_companies" %}
+            </section>
+            <section class="variable-section" id="billing_types">
+                <p class="section-subtitle">Billing types are offered when a visit is created. Insurance and account types ask for the company.</p>
+                <table class="display" style="width:100%">
+                    <thead><tr><th>Name</th><th>Kind</th><th>Active</th></tr></thead>
+                    <tbody>
+                        {% for billing_type in billing_types %}
+                        <tr><td>{{ billing_type.name }}</td><td>{{ billing_type.get_kind_display }}</td><td>{{ billing_type.is_active|yesno:"Yes,No" }}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <p class="section-title">Add billing type</p>
+                {% include "utils/_form.html" with form=billing_type_form intent="add_billing_type" submit="Add billing type" tab="billing_types" %}
+            </section>
+        </section>
+    </main>
+{% endblock %}

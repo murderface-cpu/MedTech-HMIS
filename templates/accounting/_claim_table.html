@@ -1,0 +1,19 @@
+{% load hmis %}
+<table class="display datatable" data-empty="{{ empty }}" style="width:100%">
+    <thead><tr><th>Claim</th><th>Invoice</th><th>Patient</th><th>Insurer</th><th>Member</th><th class="num">Claimed ({{ currency }})</th><th class="num">Approved ({{ currency }})</th><th>Status</th><th>Submitted</th></tr></thead>
+    <tbody>
+        {% for claim in claims %}
+        <tr data-href="{% url 'finance:claim' claim.pk %}">
+            <td><strong>{{ claim.claim_number }}</strong></td>
+            <td>{{ claim.invoice.invoice_number }}</td>
+            <td>{{ claim.invoice.patient }}</td>
+            <td>{{ claim.insurer }}</td>
+            <td>{{ claim.member_number }}</td>
+            <td class="num">{{ claim.amount_claimed|money }}</td>
+            <td class="num">{{ claim.amount_approved|money }}</td>
+            <td><span class="status {{ claim.status|tone }}">{{ claim.get_status_display }}</span></td>
+            <td data-order="{{ claim.submitted_on|date:'c' }}">{{ claim.submitted_on|date:"DATE_FORMAT"|default:"" }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

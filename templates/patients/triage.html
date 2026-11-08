@@ -1,0 +1,42 @@
+{% extends '../utils/layout.html' %}
+{% load static %}
+{% block scripts %}
+    <script defer src="{% static 'js/render.js' %}"></script>
+    <script defer src="{% static 'js/preview.js' %}"></script>
+    <script defer src="{% static 'js/patients.js' %}"></script>
+{% endblock %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <button type="button" id="create_triage_modal_activator">Create triage</button>
+            </div>
+            <div class="records-part" id="recent-patients">
+                <div class="body">
+                  <table id="triage_table" class="display" data-empty="No triage records yet." style="width:100%;margin-top:.5rem;">
+                    <thead>
+                        <tr>
+                            <th>Patient ID</th>
+                            <th>Patient</th>
+                            <th>Blood pressure</th>
+                            <th>Heart rate</th>
+                            <th>Respiratory rate</th>
+                            <th>Temperature</th>
+                            <th>Created at</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                  </table>
+                </div>
+            </div>
+        </section>
+        <aside class="preview-area" id="triage-preview" data-user-image="{% static 'images/user.png' %}"></aside>
+    </main>
+    {% include "./utils/modals/triage_modal.html" %}
+    {% include "./utils/modals/load_patient-modal.html" %}
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            initPatientsPage("triage")
+        })
+    </script>
+{% endblock %}

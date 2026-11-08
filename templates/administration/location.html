@@ -1,0 +1,13 @@
+{% extends '../utils/layout.html' %}
+{% block page_title %}{{ location.name }}{% endblock %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <a class="button-link accented" href="{% url 'manager:locations' %}"><i class="fa fa-arrow-left"></i>&nbsp;All locations</a>
+            </div>
+            <p class="help-text">{{ location.path }}</p>
+            {% include "utils/_form.html" with form=location_form intent="update" submit="Save location" %}
+        </section>
+    </main>
+{% endblock %}

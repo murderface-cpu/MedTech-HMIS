@@ -1,0 +1,175 @@
+{% extends '../utils/layout.html' %}
+{% load hmis %}
+{% block body_attributes %}data-auto-refresh="300"{% endblock %}
+{% block content %}
+    <main class="overview">
+        <p class="overview-lede">{{ greeting }}{% if user.first_name %}, {{ user.first_name }}{% endif %}. {{ now|date:"l j F Y" }}, figures as of {{ now|time:"H:i" }}.</p>
+
+        {% if attention %}
+        <section class="panel attention" aria-labelledby="attention-title">
+            <header class="panel-head">
+                <h2 id="attention-title">Needs attention</h2>
+                <p class="help-text">{{ attention|length }} item{{ attention|length|pluralize }}, most urgent first</p>
+            </header>
+            <ul class="attention-list" role="list">
+                {% for item in attention %}
+                <li class="attention-item tone-{{ item.tone }}">
+                    <a href="{{ item.url }}">
+                        <span class="attention-count">{{ item.count }}</span>
+                        <span class="attention-text">{{ item.text }}</span>
+                        <i class="fa fa-angle-right" aria-hidden="true"></i>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </section>
+        {% endif %}
+
+        {% if clinical %}
+        <section aria-labelledby="today-title">
+            <h2 class="strip-title" id="today-title">Patients today</h2>
+            <div class="stat-strip">
+                <a class="stat" href="{% url 'patients:patients-visits' %}">
+                    <span class="stat-label">Visits opened</span>
+                    <span class="stat-value">{{ clinical.visits_today|whole }}</span>
+                    {% if clinical.visits_delta %}<span class="stat-note is-{{ clinical.visits_delta.direction }}">{{ clinical.visits_delta.text }}</span>{% endif %}
+                </a>
+                <a class="stat" href="{% url 'clinical:queue' %}">
+                    <span class="stat-label">In the clinic now</span>
+                    <span class="stat-value">{{ clinical.waiting|whole }}</span>
+                    <span class="stat-note">on open visits, not yet done</span>
+                </a>
+                <a class="stat" href="{% url 'clinical:emergency-queue' %}">
+                    <span class="stat-label">Emergency cases open</span>
+                    <span class="stat-value">{{ clinical.er_open|whole }}</span>
+                    <span class="stat-note{% if clinical.er_red %} is-alert{% endif %}">{% if clinical.er_red %}{{ clinical.er_red }} emergency or very urgent{% else %}none emergency or very urgent{% endif %}</span>
+                </a>
+                <a class="stat" href="{% url 'clinical:wards' %}">
+                    <span class="stat-label">Inpatients</span>
+                    <span class="stat-value">{{ clinical.inpatients|whole }}<span class="stat-unit"> of {{ clinical.beds }} beds</span></span>
+                    <span class="stat-note{% if clinical.occupancy >= 85 %} is-alert{% endif %}">{{ clinical.occupancy }}% occupied{% if clinical.awaiting_beds %}, {{ clinical.awaiting_beds }} waiting for a bed{% endif %}</span>
+                </a>
+                <a class="stat" href="{% url 'clinical:appointments' %}">
+                    <span class="stat-label">Appointments to arrive</span>
+                    <span class="stat-value">{{ clinical.appointments_left|whole }}</span>
+                    <span class="stat-note">booked for later today</span>
+                </a>
+            </div>
+        </section>
+        {% endif %}
+
+        {% if departments %}
+        <section aria-labelledby="departments-title">
+            <h2 class="strip-title" id="departments-title">Department worklists</h2>
+            <div class="stat-strip is-compact">
+                {% for item in departments %}
+                <a class="stat" href="{{ item.url }}">
+                    <span class="stat-label">{{ item.label }}</span>
+                    <span class="stat-value">{{ item.value|whole }}</span>
+                </a>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
+
+        {% if finance %}
+        <section aria-labelledby="money-title">
+            <h2 class="strip-title" id="money-title">Money ({{ currency }})</h2>
+            <div class="stat-strip">
+                <a class="stat" href="{% url 'finance:finance-cashier' %}?tab=receive_payment">
+                    <span class="stat-label">Received today</span>
+                    <span class="stat-value">{{ finance.received_today|money }}</span>
+                    {% if finance.received_delta %}<span class="stat-note is-{{ finance.received_delta.direction }}">{{ finance.received_delta.text }}</span>{% endif %}
+                </a>
+                <a class="stat" href="{% url 'finance:finance-cashier' %}">
+                    <span class="stat-label">Owed by patients</span>
+                    <span class="stat-value">{{ finance.outstanding|money }}</span>
+                    <span class="stat-note">on {{ finance.pending_invoices }} pending invoice{{ finance.pending_invoices|pluralize }}</span>
+                </a>
+                <a class="stat" href="{% url 'finance:claims' %}?tab=open_claims">
+                    <span class="stat-label">Claims awaiting a decision</span>
+                    <span class="stat-value">{{ finance.claims_waiting|whole }}</span>
+                    <span class="stat-note">{{ finance.claims_ready }} invoice{{ finance.claims_ready|pluralize }} ready to claim</span>
+                </a>
+                <a class="stat" href="{% url 'finance:mpesa' %}">
+                    <span class="stat-label">M-Pesa to match</span>
+                    <span class="stat-value">{{ finance.mpesa_unmatched|whole }}</span>
+                    <span class="stat-note">payments not yet on an invoice</span>
+                </a>
+            </div>
+        </section>
+        {% endif %}
+
+        <div class="panel-grid">
+            {% if clinical %}
+            <section class="panel is-wide" aria-labelledby="visits-chart-title">
+                <header class="panel-head">
+                    <h2 id="visits-chart-title">Visits per day, last 30 days</h2>
+                    <p class="help-text">{{ clinical.visit_chart.total|whole }} visits, {{ clinical.visit_chart.average|floatformat:0 }} a day on average</p>
+                </header>
+                {% include "./_columns.html" with chart=clinical.visit_chart name="visits" %}
+            </section>
+            <section class="panel" aria-labelledby="stages-title">
+                <header class="panel-head">
+                    <h2 id="stages-title">Where patients are now</h2>
+                    <a class="panel-link" href="{% url 'clinical:queue' %}">Queue board</a>
+                </header>
+                {% include "./_bars.html" with bars=clinical.stages empty="No open visits." %}
+            </section>
+            {% endif %}
+
+            {% if finance %}
+            <section class="panel is-wide" aria-labelledby="money-chart-title">
+                <header class="panel-head">
+                    <h2 id="money-chart-title">Money received per day ({{ currency }}), last 30 days</h2>
+                    <p class="help-text">{{ currency }} {{ finance.money_chart.total|money }} from patients and companies</p>
+                </header>
+                {% include "./_columns.html" with chart=finance.money_chart name="received" unit=currency %}
+            </section>
+            <section class="panel" aria-labelledby="streams-title">
+                <header class="panel-head">
+                    <h2 id="streams-title">Billed by department, 30 days</h2>
+                </header>
+                {% include "./_bars.html" with bars=finance.streams empty="Nothing billed in the last 30 days." show_share=True %}
+            </section>
+            {% endif %}
+
+            {% if clinical %}
+            <section class="panel" aria-labelledby="wards-title">
+                <header class="panel-head">
+                    <h2 id="wards-title">Ward occupancy</h2>
+                    <a class="panel-link" href="{% url 'clinical:wards' %}">Ward board</a>
+                </header>
+                {% if clinical.wards %}
+                <ul class="meter-list" role="list">
+                    {% for item in clinical.wards %}
+                    <li class="meter-row is-{{ item.level }}">
+                        <span class="meter-label">{{ item.ward.name }}</span>
+                        <span class="meter" role="meter" aria-valuemin="0" aria-valuemax="{{ item.total }}" aria-valuenow="{{ item.occupied }}" aria-label="{{ item.ward.name }}: {{ item.occupied }} of {{ item.total }} beds occupied"><span class="meter-fill" style="--w: {{ item.share }}%"></span></span>
+                        <span class="meter-value">{{ item.occupied }}/{{ item.total }}{% if item.level == "full" %} <small>Full</small>{% elif item.level == "high" %} <small>{{ item.share }}%</small>{% endif %}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="panel-empty">No wards set up yet.</p>
+                {% endif %}
+            </section>
+            <section class="panel" aria-labelledby="diagnoses-title">
+                <header class="panel-head">
+                    <h2 id="diagnoses-title">Top diagnoses, 30 days</h2>
+                </header>
+                {% include "./_bars.html" with bars=clinical.diagnoses empty="No diagnoses recorded in the last 30 days." %}
+            </section>
+            {% endif %}
+
+            {% if finance %}
+            <section class="panel" aria-labelledby="payers-title">
+                <header class="panel-head">
+                    <h2 id="payers-title">Who pays, 30 days</h2>
+                </header>
+                {% include "./_bars.html" with bars=finance.payers empty="Nothing billed in the last 30 days." show_share=True %}
+            </section>
+            {% endif %}
+        </div>
+    </main>
+{% endblock %}

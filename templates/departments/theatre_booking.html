@@ -1,0 +1,12 @@
+{% extends '../utils/layout.html' %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <a class="button-link accented" href="{% url 'departments:departments-theatre' %}?tab=scheduled_bookings"><i class="fa fa-arrow-left"></i>&nbsp;Theatre</a>
+            </div>
+            <p class="section-title">{{ booking.surgery_type }} &middot; {{ booking.visit.patient }} ({{ booking.visit.visit_id }})</p>
+            {% include "utils/_form.html" with form=booking_form intent="update" submit="Save booking" %}
+        </section>
+    </main>
+{% endblock %}

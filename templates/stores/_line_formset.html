@@ -1,0 +1,25 @@
+{% comment %}Rows of an inline formset as an editable table. Pass formset and caption.{% endcomment %}
+{{ formset.management_form }}
+{% for error in formset.non_form_errors %}<p class="field-error">{{ error }}</p>{% endfor %}
+<div class="table-scroll">
+    <table class="display line-table">
+        <caption class="section-subtitle">{{ caption }}</caption>
+        <thead>
+            <tr>{% for field in formset.empty_form.visible_fields %}<th scope="col">{{ field.label }}</th>{% endfor %}</tr>
+        </thead>
+        <tbody>
+            {% for line in formset %}
+            <tr>
+                {% for hidden in line.hidden_fields %}{{ hidden }}{% endfor %}
+                {% for field in line.visible_fields %}
+                <td>
+                    {{ field }}
+                    {% for error in field.errors %}<small class="field-error">{{ error }}</small>{% endfor %}
+                </td>
+                {% endfor %}
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<p class="help-text">Leave unused rows empty.</p>

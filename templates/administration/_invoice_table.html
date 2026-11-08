@@ -1,0 +1,24 @@
+<table class="display datatable" style="width:100%">
+    <thead>
+        <tr>
+            <th>Invoice</th><th>Issued</th><th>Patient</th><th>Billing</th><th>Items</th>
+            <th>Total ({{ currency }})</th><th>Company ({{ currency }})</th><th>Paid ({{ currency }})</th><th>Balance ({{ currency }})</th><th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for invoice in invoices %}
+        <tr data-href="{% url 'finance:finance-invoice' invoice.pk %}">
+            <td>{{ invoice.invoice_number }}</td>
+            <td data-order="{{ invoice.issued_on|date:'c' }}">{{ invoice.issued_on }}</td>
+            <td>{{ invoice.patient }}</td>
+            <td>{{ invoice.billing_type|default:"" }}{% if invoice.company %} &middot; {{ invoice.company }}{% endif %}</td>
+            <td>{{ invoice.services|truncatechars:60 }}</td>
+            <td>{{ invoice.total }}</td>
+            <td>{{ invoice.company_covered }}</td>
+            <td>{{ invoice.amount_paid }}</td>
+            <td>{{ invoice.balance }}</td>
+            <td><span class="status {{ invoice.status }}">{{ invoice.get_status_display }}</span></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>

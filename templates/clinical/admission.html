@@ -1,0 +1,80 @@
+{% extends '../utils/layout.html' %}
+{% load hmis %}
+{% block page_title %}{{ admission.patient }}{% endblock %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <a class="button-link accented" href="{% if admission.status == 'admitted' %}{% url 'clinical:admissions' %}{% else %}{% url 'clinical:discharges' %}?tab=discharged_patients{% endif %}"><i class="fa fa-arrow-left"></i>&nbsp;{% if admission.status == 'admitted' %}Current inpatients{% else %}Discharges{% endif %}</a>
+                <button type="button" data-action="print"><i class="fa fa-print" aria-hidden="true"></i>&nbsp;Print</button>
+            </div>
+
+            <div class="patient-banner">
+                <div>
+                    <p class="patient-banner-name">{{ admission.patient }}</p>
+                    <p class="help-text">{{ admission.patient.patient_id }} &middot; {{ admission.patient.gender }}, {{ admission.patient.age }} years &middot; {{ admission.patient.telnumber }}</p>
+                </div>
+                <dl class="banner-facts">
+                    <div><dt>Admission</dt><dd>{{ admission.admission_number }}</dd></div>
+                    <div><dt>Bed</dt><dd>{% if admission.bed %}{{ admission.bed.ward.name }}, bed {{ admission.bed.number }}{% else %}Not assigned{% endif %}</dd></div>
+                    <div><dt>Admitted</dt><dd>{{ admission.admitted_on|date:"DATETIME_FORMAT"|default:"Not yet" }}</dd></div>
+                    <div><dt>Days</dt><dd>{{ admission.days_admitted }}</dd></div>
+                    <div><dt>Status</dt><dd><span class="status {{ admission.status|tone }}">{{ admission.get_status_display }}</span></dd></div>
+                </dl>
+            </div>
+
+            <div class="report">
+                <dl class="invoice-meta">
+                    <div><dt>Reason for admission</dt><dd>{{ admission.reason }}</dd></div>
+                    <div><dt>Admitting doctor</dt><dd>{{ admission.doctor|default:"Not recorded" }}</dd></div>
+                    <div><dt>Visit</dt><dd>{{ admission.visit.visit_id|default:"None" }}</dd></div>
+                    <div><dt>Requested by</dt><dd>{{ admission.requested_by|default:"" }}, {{ admission.requested_on|date:"DATETIME_FORMAT" }}</dd></div>
+                    {% if diagnoses %}<div><dt>Diagnoses this visit</dt><dd>{% for diagnosis in diagnoses %}{{ diagnosis.diagnosis }}{% if not forloop.last %}; {% endif %}{% endfor %}</dd></div>{% endif %}
+                    {% if admission.status == "discharged" %}
+                    <div><dt>Outcome</dt><dd>{{ admission.get_discharge_type_display }}, {{ admission.discharged_on|date:"DATETIME_FORMAT" }}</dd></div>
+                    {% endif %}
+                </dl>
+                {% if admission.discharge_summary %}<dl><dt>Discharge summary</dt><dd class="prose">{{ admission.discharge_summary|linebreaksbr }}</dd></dl>{% endif %}
+            </div>
+
+            {% if admission.status == "admitted" %}
+            <div class="no-print split-panels">
+                <form method="post" class="app-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="intent" value="transfer">
+                    <p class="section-title">Move to another bed</p>
+                    <div class="form-grid">{% for field in bed_form %}{% include "utils/_field.html" %}{% endfor %}</div>
+                    <div class="form-actions"><button type="submit">Move patient</button></div>
+                </form>
+                <form method="post" class="app-form" id="discharge" data-confirm="Discharge {{ admission.patient }}? The bed is released for cleaning and the remaining bed days are posted for billing.">
+                    {% csrf_token %}
+                    <input type="hidden" name="intent" value="discharge">
+                    <p class="section-title">Discharge</p>
+                    {% if discharge_templates %}
+                    <div class="template-picker">
+                        <label for="discharge-template">Start from a template</label>
+                        <select class="input" id="discharge-template" data-insert-into="id_discharge_summary">
+                            <option value="">Choose a template</option>
+                            {% for note_template in discharge_templates %}<option value="{{ note_template.body }}">{{ note_template.name }}</option>{% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
+                    <div class="form-grid">{% for field in discharge_form %}{% include "utils/_field.html" %}{% endfor %}</div>
+                    <div class="form-actions"><button type="submit" class="accented">Discharge patient</button></div>
+                </form>
+            </div>
+            {% endif %}
+
+            <p class="section-title">Bed charges</p>
+            <table class="display datatable" data-empty="Bed days are posted daily from Bed charges, and on discharge." style="width:100%">
+                <thead><tr><th>Day</th><th>Ward</th><th class="num">Amount ({{ currency }})</th></tr></thead>
+                <tbody>
+                    {% for charge in charges %}
+                    <tr><td data-order="{{ charge.charge_date|date:'c' }}">{{ charge.charge_date|date:"D j M Y" }}</td><td>{{ charge.ward.name }}</td><td class="num">{{ charge.amount|money }}</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="totals"><span>Posted so far: <strong>{{ currency }} {{ charges_total|money }}</strong></span></div>
+        </section>
+    </main>
+{% endblock %}

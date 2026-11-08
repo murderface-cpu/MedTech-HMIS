@@ -1,0 +1,81 @@
+{% extends '../utils/layout.html' %}
+{% load hmis %}
+{% block body_attributes %}data-remember-tab{% endblock %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <button type="button" class="accented section-togglers" data-section="samples_in_progress" data-default>In progress ({{ in_progress|length }})</button>
+                <button type="button" class="accented section-togglers" data-section="samples_finished">Completed and rejected</button>
+                <a class="button-link" href="{% url 'lab:sample-collection' %}">Sample collection</a>
+            </div>
+            <section class="variable-section" id="samples_in_progress">
+                {% if in_progress %}
+                <table class="display datatable" style="width:100%">
+                    <thead><tr><th>Accession</th><th>Patient</th><th>Specimen</th><th>Tests</th><th>Status</th><th>Since collection</th><th>Next step</th></tr></thead>
+                    <tbody>
+                        {% for sample in in_progress %}
+                        <tr>
+                            <td><strong>{{ sample.accession_number }}</strong></td>
+                            <td>{{ sample.request.visit.patient }}<br><small class="help-text">{{ sample.request.visit.visit_id }}</small></td>
+                            <td>{{ sample.get_specimen_display }}</td>
+                            <td>{% for assigned in sample.tests.all %}{{ assigned.test.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
+                            <td><span class="status {{ sample.status|tone }}">{{ sample.get_status_display }}</span></td>
+                            <td data-order="{{ sample.turnaround_minutes }}">{% if sample.turnaround_minutes < 120 %}{{ sample.turnaround_minutes }} min{% else %}{{ sample.collected_on|timesince }}{% endif %}</td>
+                            <td>
+                                <div class="row-actions">
+                                    <form method="post" class="inline-form">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="intent" value="advance">
+                                        <input type="hidden" name="tab" value="samples_in_progress">
+                                        <input type="hidden" name="sample" value="{{ sample.pk }}">
+                                        <button type="submit" class="accented">{{ sample.next_status_label }}</button>
+                                    </form>
+                                    <details class="row-popover">
+                                        <summary class="button-link">Reject</summary>
+                                        <form method="post" class="popover-form">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="intent" value="reject">
+                                            <input type="hidden" name="tab" value="samples_in_progress">
+                                            <input type="hidden" name="sample" value="{{ sample.pk }}">
+                                            <label class="stacked-field">Reason
+                                                <input class="input" name="rejection_reason" list="rejection-reasons" required>
+                                            </label>
+                                            <button type="submit" class="danger">Reject sample</button>
+                                        </form>
+                                    </details>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <datalist id="rejection-reasons">
+                    <option value="Haemolysed"><option value="Clotted"><option value="Insufficient volume">
+                    <option value="Unlabelled or mislabelled"><option value="Wrong container"><option value="Delayed in transit">
+                </datalist>
+                {% else %}
+                <p class="empty-state">No samples in progress. Samples appear here once collected and move through receipt, analysis and completion.</p>
+                {% endif %}
+            </section>
+            <section class="variable-section" id="samples_finished">
+                <table class="display datatable" data-empty="Completed and rejected samples appear here." style="width:100%">
+                    <thead><tr><th>Collected</th><th>Accession</th><th>Patient</th><th>Specimen</th><th>Status</th><th>Turnaround</th><th>Reason</th></tr></thead>
+                    <tbody>
+                        {% for sample in finished %}
+                        <tr>
+                            <td data-order="{{ sample.collected_on|date:'c' }}">{{ sample.collected_on|date:"DATETIME_FORMAT" }}</td>
+                            <td>{{ sample.accession_number }}</td>
+                            <td>{{ sample.request.visit.patient }}</td>
+                            <td>{{ sample.get_specimen_display }}</td>
+                            <td><span class="status {{ sample.status|tone }}">{{ sample.get_status_display }}</span></td>
+                            <td data-order="{{ sample.turnaround_minutes }}">{{ sample.turnaround_minutes }} min</td>
+                            <td>{{ sample.rejection_reason }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+        </section>
+    </main>
+{% endblock %}

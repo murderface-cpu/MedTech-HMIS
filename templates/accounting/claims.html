@@ -1,0 +1,65 @@
+{% extends '../utils/layout.html' %}
+{% load hmis %}
+{% block body_attributes %}data-remember-tab{% endblock %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <button type="button" class="accented section-togglers" data-section="ready_to_claim" data-default>Ready to claim ({{ ready|length }})</button>
+                <button type="button" class="accented section-togglers" data-section="open_claims">In progress ({{ open_claims|length }})</button>
+                <button type="button" class="accented section-togglers" data-section="decided_claims">Decided</button>
+            </div>
+            <form method="get" class="filters">
+                <label>Insurer
+                    <select class="input" name="insurer" data-auto-submit>
+                        <option value="">All insurers</option>
+                        {% for company in insurers %}<option value="{{ company.pk }}" {% if insurer == company.pk|stringformat:"s" %}selected{% endif %}>{{ company.name }}</option>{% endfor %}
+                    </select>
+                </label>
+                <noscript><button type="submit">Show</button></noscript>
+            </form>
+            <div class="summary-cards">
+                <div><small>Ready to claim</small><strong>{{ totals.ready|money }}</strong></div>
+                <div><small>Awaiting a decision</small><strong>{{ totals.submitted|money }}</strong></div>
+                <div><small>Approved</small><strong>{{ totals.approved|money }}</strong></div>
+                <div><small>Rejected</small><strong>{{ totals.rejected|money }}</strong></div>
+            </div>
+            <section class="variable-section" id="ready_to_claim">
+                {% if ready %}
+                <table class="display" style="width:100%">
+                    <thead><tr><th>Invoice</th><th>Issued</th><th>Patient</th><th>Insurer</th><th class="num">Insurer's share ({{ currency }})</th><th>Draft a claim</th></tr></thead>
+                    <tbody>
+                        {% for invoice in ready %}
+                        <tr>
+                            <td><a href="{% url 'finance:finance-invoice' invoice.pk %}">{{ invoice.invoice_number }}</a></td>
+                            <td>{{ invoice.issued_on|date:"DATE_FORMAT" }}</td>
+                            <td>{{ invoice.patient }}</td>
+                            <td>{{ invoice.insurance_company }}</td>
+                            <td class="num">{{ invoice.company_covered|money }}</td>
+                            <td>
+                                <form method="post" class="inline-form">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="intent" value="create">
+                                    <input type="hidden" name="invoice" value="{{ invoice.pk }}">
+                                    <input class="input" name="member_number" required placeholder="Member number" aria-label="Member number for {{ invoice.patient }}">
+                                    <input class="input" name="preauthorisation" placeholder="Pre-auth (optional)" aria-label="Pre-authorisation code">
+                                    <button type="submit" class="accented">Draft</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <p class="empty-state">Every insured invoice is claimed. Invoices with an insurer's share appear here once issued.</p>
+                {% endif %}
+            </section>
+            <section class="variable-section" id="open_claims">
+                {% include "./_claim_table.html" with claims=open_claims empty="No claims are drafted or waiting for a decision." %}
+            </section>
+            <section class="variable-section" id="decided_claims">
+                {% include "./_claim_table.html" with claims=decided empty="Decided claims appear here." %}
+            </section>
+        </section>
+    </main>
+{% endblock %}

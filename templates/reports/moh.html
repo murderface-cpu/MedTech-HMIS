@@ -1,0 +1,44 @@
+{% extends '../utils/layout.html' %}
+{% block body_attributes %}data-remember-tab{% endblock %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <form method="get" class="filters">
+                <label>Month
+                    <select class="input" name="month" data-auto-submit>
+                        {% for option in months %}<option value="{{ option|date:'Y-m' }}" {% if option == month %}selected{% endif %}>{{ option|date:"F Y" }}</option>{% endfor %}
+                    </select>
+                </label>
+                <noscript><button type="submit">Show</button></noscript>
+                <p class="help-text">Figures for {{ month|date:"F Y" }} from the records. Check them before entering them in KHIS.</p>
+            </form>
+            <div class="main-cta-section">
+                <button type="button" class="accented section-togglers" data-section="moh_705a" data-default>705A, under 5 ({{ under_five.total }})</button>
+                <button type="button" class="accented section-togglers" data-section="moh_705b">705B, 5 and over ({{ over_five.total }})</button>
+                <button type="button" class="accented section-togglers" data-section="moh_717">717 workload</button>
+            </div>
+            <section class="variable-section" id="moh_705a">
+                {% include "./_morbidity.html" with table=under_five code="705a" %}
+            </section>
+            <section class="variable-section" id="moh_705b">
+                {% include "./_morbidity.html" with table=over_five code="705b" %}
+            </section>
+            <section class="variable-section" id="moh_717">
+                <div class="report-actions">
+                    <p class="help-text">MOH 717 monthly service workload, {{ month|date:"F Y" }}.</p>
+                    <a class="button-link" href="?month={{ month|date:'Y-m' }}&amp;format=717"><i class="fa fa-download" aria-hidden="true"></i> Download CSV</a>
+                </div>
+                <div class="workload-grid">
+                    {% for section in workload %}
+                    <table class="display">
+                        <caption class="section-subtitle">{{ section.title }}</caption>
+                        <tbody>
+                            {% for label, value in section.rows %}<tr><td>{{ label }}</td><td class="num"><strong>{{ value }}</strong></td></tr>{% endfor %}
+                        </tbody>
+                    </table>
+                    {% endfor %}
+                </div>
+            </section>
+        </section>
+    </main>
+{% endblock %}

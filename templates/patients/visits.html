@@ -1,0 +1,43 @@
+{% extends '../utils/layout.html' %}
+{% load static %}
+{% block scripts %}
+    <script defer src="{% static 'js/render.js' %}"></script>
+    <script defer src="{% static 'js/preview.js' %}"></script>
+    <script defer src="{% static 'js/patients.js' %}"></script>
+{% endblock %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <button type="button" id="create_visit_modal_activator">Create visit</button>
+            </div>
+            <div class="records-part" id="recent-patients">
+              <div class="body">
+                <table id="visitsTable" class="display" data-empty="No visits yet. Start a visit for a registered patient." style="width:100%;margin-top:.5rem;">
+                  <thead>
+                      <tr>
+                        <th>Patient ID</th>
+                        <th>Patient</th>
+                        <th>Category</th>
+                        <th>Speciality</th>
+                        <th>Doctor</th>
+                        <th>Complete</th>
+                        <th>Visit date</th>
+                      </tr>
+                  </thead>
+                  <tbody>
+                  </tbody>
+                </table>
+              </div>
+          </div>
+        </section>
+        <aside class="preview-area" id="visit-preview" data-user-image="{% static 'images/user.png' %}"></aside>
+    </main>
+    {% include "./utils/modals/visits_modal.html" %}
+    {% include "./utils/modals/load_patient-modal.html" %}
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            initPatientsPage("visits")
+        })
+    </script>
+{% endblock %}

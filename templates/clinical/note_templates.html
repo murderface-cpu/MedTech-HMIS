@@ -1,0 +1,32 @@
+{% extends '../utils/layout.html' %}
+{% block body_attributes %}data-remember-tab{% endblock %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <button type="button" class="accented section-togglers" data-section="template_list" data-default>Templates ({{ note_templates|length }})</button>
+                <button type="button" class="accented section-togglers" data-section="add_template">Add a template</button>
+            </div>
+            <section class="variable-section" id="template_list">
+                <table class="display datatable" data-empty="No templates yet. Add one for wording you type often, such as a normal chest examination." style="width:100%">
+                    <thead><tr><th>Name</th><th>Part of the notes</th><th>Wording</th><th>In use</th><th>Updated</th></tr></thead>
+                    <tbody>
+                        {% for note_template in note_templates %}
+                        <tr data-href="{% url 'clinical:note-template' note_template.pk %}">
+                            <td>{{ note_template.name }}</td>
+                            <td>{{ note_template.get_section_display }}</td>
+                            <td class="cell-clamp">{{ note_template.body|truncatechars:110 }}</td>
+                            <td>{% if note_template.is_active %}<span class="status tone-ok">In use</span>{% else %}<span class="status tone-neutral">Retired</span>{% endif %}</td>
+                            <td data-order="{{ note_template.updated_on|date:'c' }}">{{ note_template.updated_on|date:"DATE_FORMAT" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+            <section class="variable-section" id="add_template">
+                <p class="help-text">Templates in use are offered in the consultation notes under the part they belong to, and discharge summaries on the admission page.</p>
+                {% include "utils/_form.html" with form=template_form intent="add_template" submit="Add template" tab="add_template" %}
+            </section>
+        </section>
+    </main>
+{% endblock %}

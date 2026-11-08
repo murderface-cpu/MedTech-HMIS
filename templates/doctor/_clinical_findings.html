@@ -1,0 +1,123 @@
+{% load hmis %}
+<section class="variable-section" id="clinical_findings">
+  <div class="section_cta_area">
+    <button type="button" class="section-part-toggler" data-section="general_findings">General findings</button>
+    <button type="button" class="section-part-toggler" data-section="paedeatrics">Paediatrics</button>
+    <button type="button" class="section-part-toggler" data-section="gyn">Gyn</button>
+  </div>
+  <div class="variable-section-part inview" id="general_findings">
+    <form id="general_findings_form" class="section-form app-form">
+      <div class="form-grid">
+        <div class="form-control flex flex-column">
+          <label for="gf_presenting_complaints">Presenting complaints</label>{% with options=note_templates|get_item:"presenting_complaints" %}{% if options %}<select class="input note-template" data-insert-into="gf_presenting_complaints" aria-label="Add wording from a template"><option value="">Add from a template</option>{% for item in options %}<option value="{{ item.body }}">{{ item.name }}</option>{% endfor %}</select>{% endif %}{% endwith %}
+          <textarea class="input" id="gf_presenting_complaints" name="presenting_complaints" rows="3" maxlength="256"></textarea>
+        </div>
+        <div class="form-control flex flex-column">
+          <label for="gf_clinical_notes">Clinical notes</label>{% with options=note_templates|get_item:"clinical_notes" %}{% if options %}<select class="input note-template" data-insert-into="gf_clinical_notes" aria-label="Add wording from a template"><option value="">Add from a template</option>{% for item in options %}<option value="{{ item.body }}">{{ item.name }}</option>{% endfor %}</select>{% endif %}{% endwith %}
+          <textarea class="input" id="gf_clinical_notes" name="clinical_notes" rows="3" maxlength="256"></textarea>
+        </div>
+        <div class="form-control flex flex-column">
+          <label for="gf_rohs">ROHS</label>
+          <textarea class="input" id="gf_rohs" name="rohs" rows="3" maxlength="256"></textarea>
+        </div>
+        <div class="form-control flex flex-column">
+          <label for="gf_psh">PSH</label>
+          <textarea class="input" id="gf_psh" name="psh" rows="3" maxlength="256"></textarea>
+        </div>
+        <div class="form-control flex flex-column">
+          <label for="gf_poh">POH</label>
+          <textarea class="input" id="gf_poh" name="poh" rows="3" maxlength="256"></textarea>
+        </div>
+        <div class="form-control flex flex-column">
+          <label for="gf_cvs">CVS</label>{% with options=note_templates|get_item:"cvs" %}{% if options %}<select class="input note-template" data-insert-into="gf_cvs" aria-label="Add wording from a template"><option value="">Add from a template</option>{% for item in options %}<option value="{{ item.body }}">{{ item.name }}</option>{% endfor %}</select>{% endif %}{% endwith %}
+          <textarea class="input" id="gf_cvs" name="cvs" rows="3" maxlength="256"></textarea>
+        </div>
+        <div class="form-control flex flex-column">
+          <label for="gf_general_appearance">General appearance</label>{% with options=note_templates|get_item:"general_appearance" %}{% if options %}<select class="input note-template" data-insert-into="gf_general_appearance" aria-label="Add wording from a template"><option value="">Add from a template</option>{% for item in options %}<option value="{{ item.body }}">{{ item.name }}</option>{% endfor %}</select>{% endif %}{% endwith %}
+          <textarea class="input" id="gf_general_appearance" name="general_appearance" rows="3" maxlength="256"></textarea>
+        </div>
+        <div class="form-control flex flex-column">
+          <label for="gf_respiratory">Respiratory</label>{% with options=note_templates|get_item:"respiratory" %}{% if options %}<select class="input note-template" data-insert-into="gf_respiratory" aria-label="Add wording from a template"><option value="">Add from a template</option>{% for item in options %}<option value="{{ item.body }}">{{ item.name }}</option>{% endfor %}</select>{% endif %}{% endwith %}
+          <textarea class="input" id="gf_respiratory" name="respiratory" rows="3" maxlength="256"></textarea>
+        </div>
+        <div class="form-control flex flex-column">
+          <label for="gf_ent">ENT</label>
+          <textarea class="input" id="gf_ent" name="ent" rows="3" maxlength="256"></textarea>
+        </div>
+        <div class="form-control flex flex-column">
+          <label for="gf_abdomen_and_Gut">Abdomen and Gut</label>{% with options=note_templates|get_item:"abdomen_and_Gut" %}{% if options %}<select class="input note-template" data-insert-into="gf_abdomen_and_Gut" aria-label="Add wording from a template"><option value="">Add from a template</option>{% for item in options %}<option value="{{ item.body }}">{{ item.name }}</option>{% endfor %}</select>{% endif %}{% endwith %}
+          <textarea class="input" id="gf_abdomen_and_Gut" name="abdomen_and_Gut" rows="3" maxlength="256"></textarea>
+        </div>
+        <div class="form-control flex flex-column">
+          <label for="gf_cns">CNS</label>{% with options=note_templates|get_item:"cns" %}{% if options %}<select class="input note-template" data-insert-into="gf_cns" aria-label="Add wording from a template"><option value="">Add from a template</option>{% for item in options %}<option value="{{ item.body }}">{{ item.name }}</option>{% endfor %}</select>{% endif %}{% endwith %}
+          <textarea class="input" id="gf_cns" name="cns" rows="3" maxlength="256"></textarea>
+        </div>
+        <div class="form-control flex flex-column">
+          <label for="gf_eye">Eye</label>
+          <textarea class="input" id="gf_eye" name="eye" rows="3" maxlength="256"></textarea>
+        </div>
+        <div class="form-control flex flex-column">
+          <label for="gf_muscular_skeletal">Muscular skeletal</label>
+          <textarea class="input" id="gf_muscular_skeletal" name="muscular_skeletal" rows="3" maxlength="256"></textarea>
+        </div>
+        <div class="form-control flex flex-column">
+          <label for="gf_skin">Skin and Others</label>
+          <textarea class="input" id="gf_skin" name="skin" rows="3" maxlength="256"></textarea>
+        </div>
+        <div class="form-control flex flex-column">
+          <label for="gf_pv_pr">PV/PR</label>
+          <textarea class="input" id="gf_pv_pr" name="pv_pr" rows="3" maxlength="256"></textarea>
+        </div>
+        <div class="form-control flex flex-column">
+          <label for="gf_psychological_status">Psychological status</label>
+          <textarea class="input" id="gf_psychological_status" name="psychological_status" rows="3" maxlength="256"></textarea>
+        </div>
+        <div class="form-control flex flex-column">
+          <label for="gf_provisional_status">Provisional diagnosis</label>
+          <textarea class="input" id="gf_provisional_status" name="provisional_status" rows="3" maxlength="256"></textarea>
+        </div>
+        <div class="form-control flex flex-column">
+          <label for="gf_treatment_plan">Treatment plan</label>{% with options=note_templates|get_item:"treatment_plan" %}{% if options %}<select class="input note-template" data-insert-into="gf_treatment_plan" aria-label="Add wording from a template"><option value="">Add from a template</option>{% for item in options %}<option value="{{ item.body }}">{{ item.name }}</option>{% endfor %}</select>{% endif %}{% endwith %}
+          <textarea class="input" id="gf_treatment_plan" name="treatment_plan" rows="3" maxlength="256"></textarea>
+        </div>
+      </div>
+      <div class="form-actions record-navigation">
+        <small class="record-date" data-record-date></small>
+        <button type="button" class="accented" data-record="previous" title="Previous record"><i class="fa fa-arrow-left"></i></button>
+        <button type="button" class="accented" data-record="next" title="Next record"><i class="fa fa-arrow-right"></i></button>
+        <button type="button" data-record="new">New</button>
+        <button type="submit" class="accented">Save</button>
+      </div>
+    </form>
+  </div>
+  <div class="variable-section-part" id="paedeatrics">
+    <form id="paedeatrics_form" class="section-form app-form">
+        <div class="form-control flex flex-column">
+          <label for="paedeatrics_notes">Paediatric notes</label>
+          <textarea class="input" id="paedeatrics_notes" name="notes" rows="10" maxlength="256"></textarea>
+        </div>
+      <div class="form-actions record-navigation">
+        <small class="record-date" data-record-date></small>
+        <button type="button" class="accented" data-record="previous" title="Previous record"><i class="fa fa-arrow-left"></i></button>
+        <button type="button" class="accented" data-record="next" title="Next record"><i class="fa fa-arrow-right"></i></button>
+        <button type="button" data-record="new">New</button>
+        <button type="submit" class="accented">Save</button>
+      </div>
+    </form>
+  </div>
+  <div class="variable-section-part" id="gyn">
+    <form id="gyn_form" class="section-form app-form">
+        <div class="form-control flex flex-column">
+          <label for="gyn_notes">Gyn notes</label>
+          <textarea class="input" id="gyn_notes" name="notes" rows="10" maxlength="256"></textarea>
+        </div>
+      <div class="form-actions record-navigation">
+        <small class="record-date" data-record-date></small>
+        <button type="button" class="accented" data-record="previous" title="Previous record"><i class="fa fa-arrow-left"></i></button>
+        <button type="button" class="accented" data-record="next" title="Next record"><i class="fa fa-arrow-right"></i></button>
+        <button type="button" data-record="new">New</button>
+        <button type="submit" class="accented">Save</button>
+      </div>
+    </form>
+  </div>
+</section>

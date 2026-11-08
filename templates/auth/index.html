@@ -1,0 +1,52 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ view_name }}</title>
+    <link rel="stylesheet" href="{% static 'icons/font-awesome-4.7.0/css/font-awesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/auth.css' %}">
+</head>
+<body>
+    <main class="auth">
+        <header class="auth-brand">
+            <img src="{% static 'auth-logo/med-tech-hmis-logo.png' %}" alt="" width="56" height="56">
+            <p>{{ hospital_name }}</p>
+        </header>
+        <section class="auth-card" aria-labelledby="auth-title">
+            <h1 id="auth-title">Sign in to {{ application_short_name|default:application_name }}</h1>
+            <form method="post" class="auth-form">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ next }}">
+                {% for error in form.non_field_errors %}<p class="auth-error" role="alert">{{ error }}</p>{% endfor %}
+                <div class="auth-field">
+                    <label for="{{ form.username.id_for_label }}">Username</label>
+                    <input type="text" name="{{ form.username.html_name }}" id="{{ form.username.id_for_label }}"
+                           value="{{ form.username.value|default:'' }}" autocomplete="username" autocapitalize="none" spellcheck="false" autofocus required>
+                </div>
+                <div class="auth-field">
+                    <label for="{{ form.password.id_for_label }}">Password</label>
+                    <div class="password-field">
+                        <input type="password" name="{{ form.password.html_name }}" id="{{ form.password.id_for_label }}"
+                               autocomplete="current-password" required>
+                        <button type="button" id="toggle_password" aria-label="Show password" aria-pressed="false"><i class="fa fa-eye" aria-hidden="true"></i></button>
+                    </div>
+                </div>
+                <button type="submit" class="auth-submit">Sign in</button>
+            </form>
+        </section>
+        <p class="auth-help">Forgotten your password? Ask a system administrator to reset it.</p>
+    </main>
+    <script>
+        document.querySelector("#toggle_password").addEventListener("click", event => {
+            const field = document.querySelector("#{{ form.password.id_for_label }}")
+            const show = field.type === "password"
+            field.type = show ? "text" : "password"
+            event.currentTarget.setAttribute("aria-label", show ? "Hide password" : "Show password")
+            event.currentTarget.setAttribute("aria-pressed", String(show))
+            event.currentTarget.querySelector("i").className = show ? "fa fa-eye-slash" : "fa fa-eye"
+        })
+    </script>
+</body>
+</html>

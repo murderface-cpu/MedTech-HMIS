@@ -1,0 +1,68 @@
+{% extends '../utils/layout.html' %}
+{% load hmis %}
+{% block body_attributes %}data-remember-tab{% endblock %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <button type="button" class="accented section-togglers" data-section="to_collect" data-default>To collect ({{ waiting|length }})</button>
+                <button type="button" class="accented section-togglers" data-section="collected_today">Collected today ({{ collected_today|length }})</button>
+                <a class="button-link" href="{% url 'lab:sample-tracking' %}">Sample tracking</a>
+            </div>
+            <section class="variable-section" id="to_collect">
+                {% if waiting %}
+                <ol class="collect-list" role="list">
+                    {% for item in waiting %}
+                    <li class="collect-item">
+                        <div class="collect-patient">
+                            <p class="queue-card-name">{{ item.request.visit.patient }}</p>
+                            <p class="help-text">{{ item.request.visit.visit_id }} &middot; {{ item.request.visit.patient.gender }}, {{ item.request.visit.patient.age }} &middot; ordered by {{ item.request.doctor|default:"the doctor" }}, {{ item.request.created_on|timesince }} ago</p>
+                        </div>
+                        <form method="post" class="collect-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="intent" value="collect">
+                            <input type="hidden" name="tab" value="to_collect">
+                            <input type="hidden" name="request" value="{{ item.request.pk }}">
+                            <fieldset class="check-group">
+                                <legend>Tests for this specimen</legend>
+                                {% for assigned in item.tests %}
+                                <label><input type="checkbox" name="tests" value="{{ assigned.pk }}" checked> {{ assigned.test.name }}</label>
+                                {% endfor %}
+                            </fieldset>
+                            <label class="stacked-field">Specimen
+                                <select class="input" name="specimen" required>
+                                    <option value="">Choose</option>
+                                    {% for value, label in specimen_choices %}<option value="{{ value }}">{{ label }}</option>{% endfor %}
+                                </select>
+                            </label>
+                            <label class="stacked-field">Notes <input class="input" name="notes" placeholder="Fasting, time taken"></label>
+                            <button type="submit" class="accented">Record collection</button>
+                        </form>
+                    </li>
+                    {% endfor %}
+                </ol>
+                {% else %}
+                <p class="empty-state">Every requested test has a sample. New lab requests from doctors appear here for collection.</p>
+                {% endif %}
+            </section>
+            <section class="variable-section" id="collected_today">
+                <table class="display datatable" data-empty="No samples collected today." style="width:100%">
+                    <thead><tr><th>Time</th><th>Accession</th><th>Patient</th><th>Specimen</th><th>Tests</th><th>Status</th><th>Collected by</th></tr></thead>
+                    <tbody>
+                        {% for sample in collected_today %}
+                        <tr>
+                            <td>{{ sample.collected_on|time:"H:i" }}</td>
+                            <td><strong>{{ sample.accession_number }}</strong></td>
+                            <td>{{ sample.request.visit.patient }}</td>
+                            <td>{{ sample.get_specimen_display }}</td>
+                            <td>{% for assigned in sample.tests.all %}{{ assigned.test.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</td>
+                            <td><span class="status {{ sample.status|tone }}">{{ sample.get_status_display }}</span></td>
+                            <td>{{ sample.collected_by|default:"" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+        </section>
+    </main>
+{% endblock %}

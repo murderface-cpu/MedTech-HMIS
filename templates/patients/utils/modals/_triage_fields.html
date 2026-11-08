@@ -1,0 +1,53 @@
+<div class="modal-section">
+    <div class="section-label">
+        <small>Vital signs</small>
+    </div>
+    <div class="section-content">
+        <div class="section-content-row flex flex-gap-40">
+            <div class="form-control flex flex-column">
+                <label for="blood_pressure">Blood pressure (mmHg)</label>
+                <input class="input" type="text" id="blood_pressure" placeholder="120/80" pattern="\d{2,3}/\d{2,3}" />
+            </div>
+            <div class="form-control flex flex-column">
+                <label for="heart_rate">Heart rate (bpm)</label>
+                <input class="input" type="number" step="any" min="0" id="heart_rate" />
+            </div>
+            <div class="form-control flex flex-column">
+                <label for="respiratory_rate">Respiratory rate</label>
+                <input class="input" type="number" step="any" min="0" id="respiratory_rate" />
+            </div>
+            <div class="form-control flex flex-column">
+                <label for="temperature">Temperature (&deg;C)</label>
+                <input class="input" type="number" step="any" min="0" id="temperature" />
+            </div>
+        </div>
+        <div class="section-content-row flex flex-gap-40">
+            <div class="form-control flex flex-column">
+                <label for="weight">Weight (Kg)</label>
+                <input class="input" type="number" step="any" min="0" id="weight" />
+            </div>
+            <div class="form-control flex flex-column">
+                <label for="height">Height (cm)</label>
+                <input class="input" type="number" step="any" min="0" id="height" />
+            </div>
+            <div class="form-control flex flex-column">
+                <label for="oxygen_saturation">Oxygen saturation (%)</label>
+                <input class="input" type="number" step="any" min="0" max="100" id="oxygen_saturation" />
+            </div>
+            <div class="form-control flex flex-column">
+                <label for="MUAC">MUAC (cm)</label>
+                <input class="input" type="number" step="any" min="0" id="MUAC" />
+            </div>
+        </div>
+        <div class="section-content-row flex flex-gap-40">
+            <div class="form-control flex flex-column" style="flex: 1">
+                <label for="sign_symptoms">Signs and symptoms</label>
+                <textarea class="input" id="sign_symptoms" rows="3"></textarea>
+            </div>
+            <div class="form-control flex flex-column" style="flex: 1">
+                <label for="injury_details">Type, location and severity of injury</label>
+                <textarea class="input" id="injury_details" rows="3"></textarea>
+            </div>
+        </div>
+    </div>
+</div>

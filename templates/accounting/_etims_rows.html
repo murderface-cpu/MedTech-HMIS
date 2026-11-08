@@ -1,0 +1,19 @@
+{% load hmis %}
+{% if invoices %}
+<table class="display" style="width:100%">
+    <thead><tr><th>Invoice</th><th>Issued</th><th>Patient</th><th class="num">Total ({{ currency }})</th><th>Record the result</th></tr></thead>
+    <tbody>
+        {% for invoice in invoices %}
+        <tr>
+            <td><a href="{% url 'finance:finance-invoice' invoice.pk %}">{{ invoice.invoice_number }}</a></td>
+            <td>{{ invoice.issued_on|date:"DATE_FORMAT" }}</td>
+            <td>{{ invoice.patient }}</td>
+            <td class="num">{{ invoice.total|money }}</td>
+            <td>{% include "./_etims_form.html" %}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p class="empty-state">{{ empty }}</p>
+{% endif %}

@@ -1,0 +1,18 @@
+{% extends '../utils/layout.html' %}
+{% block page_title %}{{ note_template.name }}{% endblock %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <a class="button-link accented" href="{% url 'clinical:note-templates' %}"><i class="fa fa-arrow-left"></i>&nbsp;All templates</a>
+            </div>
+            {% include "utils/_form.html" with form=template_form intent="update" submit="Save template" %}
+            <form method="post" class="danger-zone" data-confirm="Delete the template '{{ note_template.name }}'? Notes already written keep their wording.">
+                {% csrf_token %}
+                <input type="hidden" name="intent" value="delete">
+                <p>Deleting removes the template from the list. Notes already written with it are not changed. To keep it but stop offering it, untick In use instead.</p>
+                <button type="submit">Delete template</button>
+            </form>
+        </section>
+    </main>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% if bookings %}
+<table class="display datatable" style="width:100%">
+    <thead><tr><th>Scheduled for</th><th>Patient</th><th>Surgery</th><th>Location</th><th>Surgeon</th><th>Anaesthetist</th><th>Nurses</th><th>Status</th></tr></thead>
+    <tbody>
+        {% for booking in bookings %}
+        <tr data-href="{% url 'departments:departments-theatre-booking' booking.pk %}">
+            <td data-order="{{ booking.scheduled_for|date:'c' }}">{{ booking.scheduled_for|date:"DATETIME_FORMAT" }}</td>
+            <td>{{ booking.visit.patient }}</td>
+            <td>{{ booking.surgery_type }}{% if booking.service %} ({{ booking.service.name }}){% endif %}</td>
+            <td>{{ booking.body_location|default:"" }}</td>
+            <td>{{ booking.surgeon|default:"" }}</td>
+            <td>{{ booking.anaesthetist|default:"" }}</td>
+            <td>{{ booking.nurse_one|default:"" }}{% if booking.nurse_two %}, {{ booking.nurse_two }}{% endif %}</td>
+            <td><span class="status {{ booking.status }}">{{ booking.get_status_display }}</span></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p class="empty-state">{{ empty|default:"No bookings." }}</p>
+{% endif %}

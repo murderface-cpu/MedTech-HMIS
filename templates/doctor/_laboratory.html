@@ -1,0 +1,64 @@
+<section class="variable-section" id="laboratory_section" data-request-category="{{ lab_request_category }}">
+  <div class="section_cta_area">
+    <button type="button" class="section-part-toggler" data-section="lab_results" id="lab_results_activator">Lab requests</button>
+    <button type="button" class="section-part-toggler" data-section="create_lab_request" id="create_lab_request_activator">New lab request</button>
+  </div>
+  <div class="variable-section-part inview" id="lab_results">
+    <table id="doctor_lab_requests" class="display" style="width:100%;margin-top:.5rem;">
+      <thead>
+        <tr>
+          <th>Patient ID</th>
+          <th>Visit ID</th>
+          <th>Patient</th>
+          <th>Category</th>
+          <th>Doctor</th>
+          <th>Handled</th>
+          <th>Requested</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <div id="lab_request_details" hidden>
+      <div class="form-actions">
+        <button type="button" class="accented" id="edit_lab_request">Edit tests</button>
+      </div>
+      <table id="lab_request_tests" class="display" style="width:100%">
+        <thead>
+          <tr><th>Test</th><th>Price ({{ currency }})</th><th>Result</th><th>Normal range</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+  <div class="variable-section-part" id="create_lab_request">
+    <div class="request-view">
+      <div class="request-body-wrapper">
+        <div class="request-view-body">
+          <div class="request-column" id="tests-list">
+            <header>
+              <h3>Select test</h3>
+            </header>
+            <form class="test-search-area" id="lab_test_search_form">
+              <input type="search" id="doctor_search_lab_tests_field" placeholder="Search by test name">
+            </form>
+            <ul id="request-test-list"></ul>
+          </div>
+          <div class="request-column" id="selected_tests">
+            <header>
+              <h3 id="lab_request_mode">Selected tests</h3>
+            </header>
+            <ul></ul>
+          </div>
+        </div>
+        <div class="request-footer-area">
+          <div class="summary">
+            <p class="test-total"><span id="test_count">0</span> Tests selected</p>
+          </div>
+          <div class="cta-area">
+            <button type="button" class="accented" id="place_request_activator">Place request</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

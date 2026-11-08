@@ -1,0 +1,67 @@
+{% extends '../utils/layout.html' %}
+{% load static %}
+{% block scripts %}
+    <script defer src="{% static 'js/render.js' %}"></script>
+    <script defer src="{% static 'js/preview.js' %}"></script>
+    <script defer src="{% static 'js/doctor/main.js' %}"></script>
+{% endblock %}
+{% block content %}
+  <main>
+      <section class="main-content-area">
+          <div class="main-cta-section">
+              <button type="button" class="accented section-togglers" data-section="assigned_patients" data-default>Patients</button>
+              <button type="button" class="accented section-togglers" data-section="general_doctor" data-needs-visit disabled>General</button>
+              <button type="button" class="accented section-togglers" data-section="clinical_findings" data-needs-visit disabled>Clinical findings</button>
+              <button type="button" class="accented section-togglers" data-section="diagnosis" data-needs-visit disabled>Diagnosis</button>
+              <button type="button" class="accented section-togglers" data-section="prescription" data-needs-visit disabled>Prescription</button>
+              <button type="button" class="accented section-togglers" data-section="laboratory_section" data-needs-visit disabled>Laboratory</button>
+              {% for tab in service_tabs %}
+              <button type="button" class="accented section-togglers" data-section="services_{{ tab.category }}" data-needs-visit disabled>{{ tab.label }}</button>
+              {% endfor %}
+              {% for tab in department_tabs %}
+              <button type="button" class="accented section-togglers" data-section="department_{{ tab.department }}" data-needs-visit disabled>{{ tab.label }}</button>
+              {% endfor %}
+          </div>
+          <section class="variable-section" id="assigned_patients">
+            {% if is_doctor %}
+            <div class="filters">
+              <label class="checkbox-control"><input type="checkbox" id="my_patients_only" checked> My patients only</label>
+            </div>
+            {% endif %}
+            <div class="records-part">
+              <div class="body">
+                <table id="visitsTable" class="display" data-empty="No patients are waiting for consultation." style="width:100%;margin-top:.5rem;">
+                  <thead>
+                    <tr>
+                      <th>Patient ID</th>
+                      <th>Patient</th>
+                      <th>Category</th>
+                      <th>Speciality</th>
+                      <th>Doctor</th>
+                      <th>Complete</th>
+                      <th>Visit date</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+          {% include './_general.html' %}
+          {% include './_clinical_findings.html' %}
+          {% include './_diagnosis.html' %}
+          {% include './_prescription.html' %}
+          {% include './_laboratory.html' %}
+          {% for tab in service_tabs %}
+            {% include './_service_orders.html' with category=tab.category label=tab.label %}
+          {% endfor %}
+          {% for tab in department_tabs %}
+            {% include './_department_requests.html' with department=tab.department label=tab.label %}
+          {% endfor %}
+      </section>
+      <aside class="preview-area" id="patient-preview" data-user-image="{% static 'images/user.png' %}"></aside>
+  </main>
+  <script>
+      document.addEventListener("DOMContentLoaded", () => initDoctorPage())
+  </script>
+{% endblock %}

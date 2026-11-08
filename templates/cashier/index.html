@@ -1,0 +1,95 @@
+{% extends '../utils/layout.html' %}
+{% block body_attributes %}data-remember-tab{% endblock %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <button type="button" class="accented section-togglers" data-section="pending_invoices" data-default>Pending invoices</button>
+                <button type="button" class="accented section-togglers" data-section="receive_payment">Receive payment</button>
+                <button type="button" class="accented section-togglers" data-section="company_payments">Company payments</button>
+                <button type="button" class="accented section-togglers" data-section="expenditures">Expenditures</button>
+                <button type="button" class="accented section-togglers" data-section="refunds">Refunds</button>
+            </div>
+            <section class="variable-section" id="pending_invoices">
+                {% include "administration/_invoice_table.html" with invoices=pending_invoices %}
+            </section>
+            <section class="variable-section" id="receive_payment">
+                {% include "utils/_form.html" with form=payment_form intent="payment" submit="Receive payment" tab="receive_payment" %}
+                <p class="section-title">Received today</p>
+                <div class="totals"><span>Total received today: <strong>{{ currency }} {{ takings_today }}</strong></span></div>
+                <table class="display datatable" data-empty="No payments received today." style="width:100%">
+                    <thead><tr><th>Time</th><th>Invoice</th><th>Patient</th><th>Amount ({{ currency }})</th><th>Narration</th><th>Received by</th></tr></thead>
+                    <tbody>
+                        {% for payment in payments_today %}
+                        <tr data-href="{% url 'finance:finance-invoice' payment.invoice_id %}">
+                            <td>{{ payment.received_on|time:"H:i" }}</td>
+                            <td>{{ payment.invoice.invoice_number }}</td>
+                            <td>{{ payment.invoice.patient }}</td>
+                            <td>{{ payment.amount }}</td>
+                            <td>{{ payment.narration|default:"" }}</td>
+                            <td>{{ payment.received_by|default:"" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+            <section class="variable-section" id="company_payments">
+                {% include "utils/_form.html" with form=company_payment_form intent="company_payment" submit="Record company payment" tab="company_payments" %}
+                <table class="display datatable" data-empty="No company payments recorded." style="width:100%">
+                    <thead><tr><th>Date</th><th>Company</th><th>Amount ({{ currency }})</th><th>Narration</th><th>Received by</th></tr></thead>
+                    <tbody>
+                        {% for payment in company_payments %}
+                        <tr>
+                            <td data-order="{{ payment.received_on|date:'c' }}">{{ payment.received_on|date:"DATETIME_FORMAT" }}</td>
+                            <td>{{ payment.company }}</td>
+                            <td>{{ payment.amount }}</td>
+                            <td>{{ payment.narration|default:"" }}</td>
+                            <td>{{ payment.received_by|default:"" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+            <section class="variable-section" id="expenditures">
+                {% include "utils/_form.html" with form=expenditure_form intent="expenditure" submit="Record expenditure" tab="expenditures" %}
+                <details class="inline-details">
+                    <summary>Expense categories ({{ expense_categories|length }})</summary>
+                    <ul class="lookup-list">{% for category in expense_categories %}<li>{{ category.name }}</li>{% endfor %}</ul>
+                    {% include "utils/_form.html" with form=category_form intent="expense_category" submit="Add category" tab="expenditures" %}
+                </details>
+                <table class="display datatable" data-empty="No expenditure recorded." style="width:100%">
+                    <thead><tr><th>Date</th><th>Category</th><th>Amount ({{ currency }})</th><th>Narration</th><th>Recorded by</th></tr></thead>
+                    <tbody>
+                        {% for expense in expenditures %}
+                        <tr>
+                            <td data-order="{{ expense.spent_on|date:'c' }}">{{ expense.spent_on }}</td>
+                            <td>{{ expense.category }}</td>
+                            <td>{{ expense.amount }}</td>
+                            <td>{{ expense.narration|default:"" }}</td>
+                            <td>{{ expense.recorded_by|default:"" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+            <section class="variable-section" id="refunds">
+                {% include "utils/_form.html" with form=refund_form intent="refund" submit="Refund" tab="refunds" confirm="Refund this amount to the patient?" %}
+                <table class="display datatable" data-empty="No refunds issued." style="width:100%">
+                    <thead><tr><th>Date</th><th>Invoice</th><th>Patient</th><th>Amount ({{ currency }})</th><th>Reason</th><th>Refunded by</th></tr></thead>
+                    <tbody>
+                        {% for refund in refunds %}
+                        <tr data-href="{% url 'finance:finance-invoice' refund.invoice_id %}">
+                            <td data-order="{{ refund.created_on|date:'c' }}">{{ refund.created_on|date:"DATETIME_FORMAT" }}</td>
+                            <td>{{ refund.invoice.invoice_number }}</td>
+                            <td>{{ refund.invoice.patient }}</td>
+                            <td>{{ refund.amount }}</td>
+                            <td>{{ refund.narration|default:"" }}</td>
+                            <td>{{ refund.refunded_by|default:"" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+        </section>
+    </main>
+{% endblock %}

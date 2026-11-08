@@ -1,0 +1,96 @@
+{% extends '../utils/layout.html' %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <a class="button-link accented" href="{% url 'lab:lab-home' %}"><i class="fa fa-arrow-left"></i>&nbsp;All requests</a>
+                <button type="button" class="accented" data-action="print"><i class="fa fa-print"></i>&nbsp;Print</button>
+            </div>
+            {% with patient=lab_request.visit.patient %}
+            <div class="report">
+                <div class="invoice-header">
+                    <p class="section-title">Laboratory results &middot; {{ hospital_name }}</p>
+                    <span class="status {% if lab_request.handled %}completed{% else %}pending{% endif %}">{{ lab_request.handled|yesno:"Handled,Pending" }}</span>
+                </div>
+                <dl class="invoice-meta">
+                    <div><dt>Patient</dt><dd>{{ patient }} ({{ patient.patient_id }})</dd></div>
+                    <div><dt>Gender / Age</dt><dd>{{ patient.gender }} / {{ patient.age }}</dd></div>
+                    <div><dt>Visit</dt><dd>{{ lab_request.visit.visit_id }}</dd></div>
+                    <div><dt>Requested by</dt><dd>{{ lab_request.doctor|default:"Not recorded" }}, {{ lab_request.created_on|date:"DATETIME_FORMAT" }}</dd></div>
+                    {% if lab_request.attendant %}<div><dt>Handled by</dt><dd>{{ lab_request.attendant }}</dd></div>{% endif %}
+                </dl>
+            </div>
+            {% endwith %}
+
+            <form method="post" class="app-form lab-results">
+                {% csrf_token %}
+                <input type="hidden" name="intent" value="save_results">
+                {% for row in rows %}
+                {% with assigned=row.assigned %}
+                <fieldset class="report">
+                    <legend class="section-title">{{ assigned.test.name }}</legend>
+                    {% if assigned.naration %}<p class="section-subtitle">Doctor's notes: {{ assigned.naration }}</p>{% endif %}
+                    {% if row.parameters %}
+                    <table class="display" style="width:100%">
+                        <thead><tr><th>Parameter</th><th>Result</th><th>Units</th><th>Normal range</th></tr></thead>
+                        <tbody>
+                            {% for parameter in row.parameters %}
+                            <tr>
+                                <td><label for="parameter_{{ assigned.pk }}_{{ parameter.subtest.pk }}">{{ parameter.subtest.name }}</label></td>
+                                <td>
+                                    <input class="input" type="number" step="any" id="parameter_{{ assigned.pk }}_{{ parameter.subtest.pk }}"
+                                           name="parameter_{{ assigned.pk }}_{{ parameter.subtest.pk }}" value="{{ parameter.value|default_if_none:'' }}"
+                                           {% if parameter.subtest.lower_limit is not None %}data-lower="{{ parameter.subtest.lower_limit }}"{% endif %}
+                                           {% if parameter.subtest.upper_limit is not None %}data-upper="{{ parameter.subtest.upper_limit }}"{% endif %}
+                                           {% if lab_request.handled %}disabled{% endif %}>
+                                </td>
+                                <td>{{ parameter.subtest.units|default:"" }}</td>
+                                <td>
+                                    {% if parameter.subtest.lower_limit is not None or parameter.subtest.upper_limit is not None %}{{ parameter.subtest.lower_limit|default_if_none:"" }} - {{ parameter.subtest.upper_limit|default_if_none:"" }}{% endif %}
+                                    {{ parameter.subtest.dafault_range|default:"" }}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% endif %}
+                    <div class="form-control flex flex-column">
+                        <label for="result_{{ assigned.pk }}">{% if row.parameters %}Comments{% else %}Result{% endif %}{% if assigned.test.dafault_range %} (normal: {{ assigned.test.dafault_range }}){% endif %}</label>
+                        <textarea class="input" id="result_{{ assigned.pk }}" name="result_{{ assigned.pk }}" rows="2" {% if lab_request.handled %}disabled{% endif %}>{{ row.result|default_if_none:"" }}</textarea>
+                    </div>
+                </fieldset>
+                {% empty %}
+                <p class="empty-state">This request has no tests.</p>
+                {% endfor %}
+                {% if not lab_request.handled and rows %}
+                <div class="form-actions">
+                    <button type="submit" class="accented">Save results</button>
+                    <button type="submit" class="accented" name="handled" value="1">Save and mark as handled</button>
+                </div>
+                {% endif %}
+            </form>
+            {% if lab_request.handled %}
+            <form method="post" class="form-actions" data-confirm="Reopen this request to change its results?">
+                {% csrf_token %}
+                <input type="hidden" name="intent" value="reopen">
+                <button type="submit">Reopen request</button>
+            </form>
+            {% endif %}
+        </section>
+    </main>
+    <script>
+        // flag values outside the parameter's normal limits
+        document.querySelectorAll(".lab-results input[type='number']").forEach(input => {
+            const check = () => {
+                const value = parseFloat(input.value)
+                const lower = input.dataset.lower !== undefined ? parseFloat(input.dataset.lower) : null
+                const upper = input.dataset.upper !== undefined ? parseFloat(input.dataset.upper) : null
+                const abnormal = !isNaN(value) && ((lower !== null && value < lower) || (upper !== null && value > upper))
+                input.classList.toggle("abnormal", abnormal)
+                input.title = abnormal ? "Outside the normal range" : ""
+            }
+            input.addEventListener("input", check)
+            check()
+        })
+    </script>
+{% endblock %}

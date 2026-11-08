@@ -1,0 +1,21 @@
+{% comment %}Breadcrumb to the current page's workspace and section; the page's own name is its h1. shell.js keeps both in step with the open tab.{% endcomment %}
+<header class="app-topbar">
+    <button type="button" class="icon-button nav-open-button" data-action="open-nav" aria-controls="app-nav" aria-expanded="false" aria-label="Open menu">
+        <i class="fa fa-bars"></i>
+    </button>
+    <nav aria-label="Breadcrumb">
+        <ol class="breadcrumb" role="list">
+            {% if current_page %}
+            <li data-breadcrumb-workspace>{{ current_page.workspace }}</li>
+            <li data-breadcrumb-section aria-current="location">{{ current_page.section }}</li>
+            {% else %}
+            <li aria-current="location">{{ application_short_name }}</li>
+            {% endif %}
+        </ol>
+    </nav>
+    <div class="app-topbar-actions">
+        <button type="button" class="icon-button" data-action="focus-search" title="Search this table" aria-label="Search this table">
+            <i class="fa fa-search"></i>
+        </button>
+    </div>
+</header>

@@ -1,0 +1,68 @@
+{% extends '../utils/layout.html' %}
+{% load hmis %}
+{% block body_attributes %}data-remember-tab{% endblock %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <button type="button" class="accented section-togglers" data-section="expiring_soon" data-default>Expiring in {{ days }} days ({{ expiring|length }})</button>
+                <button type="button" class="accented section-togglers" data-section="expired_stock">Expired on the shelf ({{ expired|length }})</button>
+            </div>
+            <section class="variable-section" id="expiring_soon">
+                <form method="get" class="filters">
+                    <input type="hidden" name="tab" value="expiring_soon">
+                    <fieldset class="segmented" aria-label="Expiry window">
+                        {% for window in windows %}
+                        <label><input type="radio" name="days" value="{{ window }}" {% if window == days %}checked{% endif %} data-auto-submit><span>{{ window }} days</span></label>
+                        {% endfor %}
+                    </fieldset>
+                    <noscript><button type="submit">Show</button></noscript>
+                    <p class="help-text">Stock value at risk: <strong>{{ currency }} {{ expiring_value|money }}</strong>. Dispense these batches first, or return them to the supplier.</p>
+                </form>
+                <table class="display datatable" data-empty="No stock expires in the next {{ days }} days." style="width:100%">
+                    <thead><tr><th>Expires</th><th class="num">Days left</th><th>Drug</th><th>Supplier</th><th class="num">Units left</th><th class="num">Value ({{ currency }})</th></tr></thead>
+                    <tbody>
+                        {% for batch in expiring %}
+                        <tr data-href="{% url 'manager:manager-drug' batch.drug_id %}">
+                            <td data-order="{{ batch.expiry_date|date:'c' }}">{{ batch.expiry_date|date:"j M Y" }}</td>
+                            <td class="num" data-order="{{ batch.days_left }}">{% if batch.days_left <= 30 %}<span class="status tone-bad">{{ batch.days_left }}</span>{% elif batch.days_left <= 60 %}<span class="status tone-warn">{{ batch.days_left }}</span>{% else %}{{ batch.days_left }}{% endif %}</td>
+                            <td>{{ batch.drug.name }}</td>
+                            <td>{{ batch.supplier|default:"" }}</td>
+                            <td class="num">{{ batch.quantity_remaining }}</td>
+                            <td class="num">{{ batch.value|money }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+            <section class="variable-section" id="expired_stock">
+                <p class="help-text">Expired stock is never dispensed. {% if can_write_off %}Write it off to remove it from the count; each write-off is kept in Stock adjustments.{% else %}Ask the store keeper to write it off.{% endif %} Value: <strong>{{ currency }} {{ expired_value|money }}</strong>.</p>
+                <table class="display datatable" data-empty="No expired stock on the shelf." style="width:100%">
+                    <thead><tr><th>Expired</th><th>Drug</th><th>Supplier</th><th class="num">Units</th><th class="num">Value ({{ currency }})</th>{% if can_write_off %}<th></th>{% endif %}</tr></thead>
+                    <tbody>
+                        {% for batch in expired %}
+                        <tr>
+                            <td data-order="{{ batch.expiry_date|date:'c' }}">{{ batch.expiry_date|date:"j M Y" }} <small class="help-text">{{ batch.days_ago }} days ago</small></td>
+                            <td>{{ batch.drug.name }}</td>
+                            <td>{{ batch.supplier|default:"" }}</td>
+                            <td class="num">{{ batch.quantity_remaining }}</td>
+                            <td class="num">{{ batch.value|money }}</td>
+                            {% if can_write_off %}
+                            <td>
+                                <form method="post" class="inline-form" data-confirm="Write off {{ batch.quantity_remaining }} units of {{ batch.drug.name }}? This cannot be undone.">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="intent" value="write_off">
+                                    <input type="hidden" name="tab" value="expired_stock">
+                                    <input type="hidden" name="batch" value="{{ batch.pk }}">
+                                    <button type="submit">Write off</button>
+                                </form>
+                            </td>
+                            {% endif %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+        </section>
+    </main>
+{% endblock %}

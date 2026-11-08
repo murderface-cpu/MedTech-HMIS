@@ -1,0 +1,33 @@
+{% extends '../utils/layout.html' %}
+{% block body_attributes %}data-remember-tab{% endblock %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <button type="button" class="accented section-togglers" data-section="ready_to_discharge" data-default>Inpatients ({{ inpatients|length }})</button>
+                <button type="button" class="accented section-togglers" data-section="discharged_patients">Discharged</button>
+            </div>
+            <section class="variable-section" id="ready_to_discharge">
+                {% include "./_inpatient_table.html" with empty="No patients are admitted." action_label="Discharge" %}
+            </section>
+            <section class="variable-section" id="discharged_patients">
+                <table class="display datatable" data-empty="Discharged patients appear here." style="width:100%">
+                    <thead><tr><th>Discharged</th><th>Patient</th><th>Admission</th><th>Ward</th><th>Days</th><th>Outcome</th><th>By</th></tr></thead>
+                    <tbody>
+                        {% for admission in discharged %}
+                        <tr data-href="{% url 'clinical:admission' admission.pk %}">
+                            <td data-order="{{ admission.discharged_on|date:'c' }}">{{ admission.discharged_on|date:"DATETIME_FORMAT" }}</td>
+                            <td>{{ admission.patient }}</td>
+                            <td>{{ admission.admission_number }}</td>
+                            <td>{{ admission.bed.ward.name|default:"" }}</td>
+                            <td>{{ admission.days_admitted }}</td>
+                            <td>{{ admission.get_discharge_type_display }}</td>
+                            <td>{{ admission.discharged_by|default:"" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+        </section>
+    </main>
+{% endblock %}

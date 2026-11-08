@@ -1,0 +1,22 @@
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.coverage
+htmlcov/
+
+# Django
+staticfiles/
+media/
+*.log
+
+# Editors and local tooling
+.idea/
+.vscode/
+.impeccable/

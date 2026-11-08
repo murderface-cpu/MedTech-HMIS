@@ -1,0 +1,11 @@
+{% extends '../utils/layout.html' %}
+{% block content %}
+    <main>
+        <section class="main-content-area narrow-content">
+            <div class="empty-state">
+                <p class="section-title">No modules assigned</p>
+                <p>Your account ({{ user.get_username }}) has not been given access to any module yet. Ask a system administrator to assign your modules.</p>
+            </div>
+        </section>
+    </main>
+{% endblock %}

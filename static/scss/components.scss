@@ -1,0 +1,410 @@
+$themeColor: #0078D7;
+$btnColor: #0078D7;
+$btnHoverColor: hsl(0, 14%, 95%);
+$btnTextColor: #0072C6;
+$transition: background-color .2s linear;
+$btnImgSize: 30px;
+$backgroundThemeColor: #F8F8F8;
+$borderColor: hsl(0, 0%, 90%);
+$accentColor: #1da1f2;
+$headerHeight: 12.5%;
+
+body {
+    block-size: 90svh;
+    inline-size: 100svw;
+    overflow: hidden;
+    display: grid;
+    grid-template-rows: $headerHeight calc(100% - $headerHeight);
+}
+
+button {
+    padding: 10px 10px;
+    border: 1px solid $borderColor;
+    justify-content: center;
+    justify-items: center;
+    transition: $transition;
+    background-color: #fff;
+    color: $btnTextColor;
+    cursor: pointer;
+
+    &:hover {
+        background-color: $btnHoverColor;
+    }
+}
+
+button.accented {
+    background-color: $accentColor;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    color: hsl(0, 0%, 95%);
+
+    &:hover {
+        background-color: hsl(203, 89%, 40%);
+    }
+}
+
+
+.departments {
+    display: grid;
+    grid-auto-flow: column;
+    justify-content: flex-start;
+    padding: .25rem;
+    gap: .25rem;
+    border: 1px solid lightgray;
+    inline-size: 100vw;
+    overflow: scroll;
+    scrollbar-width: none;
+    background-color: $backgroundThemeColor;
+
+    &::-webkit-scrollbar {
+        display: none;
+    }
+
+    .department {
+        display: grid;
+        // background-color: $btnColor;
+        // color: $btnTextColor;
+        // border: none;
+        padding: 10px 20px;
+        // border-radius: 5px;
+        // box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.25);
+        border: 1px solid $borderColor;
+        justify-content: center;
+        justify-items: center;
+        transition: $transition;
+        background-color: #fff;
+        color: $btnTextColor;
+        // inline-size: 15%;
+
+        &:hover {
+            background-color: $btnHoverColor;
+        }
+    }
+    img {
+        aspect-ratio: 1;
+        block-size: $btnImgSize;
+    }
+    .department-name {
+        font-size: .8rem;
+        font-weight: 500;
+    }
+}
+
+main {
+    $ctaSectionWidth: 4%;
+    background-color: $backgroundThemeColor;
+    display: grid;
+    grid-template-columns: $ctaSectionWidth calc(100% - $ctaSectionWidth);
+    padding: .5rem;
+    gap: .5rem;
+    // min-block-size: 100vw;
+
+    .sidebar-cta-section {
+        background-color: white;
+        border: 1px solid $borderColor;
+        display: grid;
+        align-content: flex-start;
+        gap: .15rem;
+    }
+
+    .main-content-area {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: .5rem;
+        align-content: flex-start;
+
+        .main-cta-section {
+            display: flex;
+            grid-auto-flow: column;
+            flex-wrap: wrap;
+            gap: .25rem;
+            justify-content: flex-start;
+            border: 1px solid $borderColor;
+            padding: .25rem;
+
+            button {
+                padding: 5px 10px;
+            }
+        }
+        
+        .records-part {
+            display: grid;
+            background-color: $backgroundThemeColor;
+            border: 1px solid $borderColor;
+
+            header {
+                padding: .5rem 1rem;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+
+                .table-title {
+                    color: $btnTextColor;
+                    font-size: 1rem;
+                    font-weight: 600;
+                }
+
+                form input {
+                    padding: .5rem;
+                    border: 1px solid $borderColor;
+                    border-radius: 5px;
+                }
+            }
+
+            table {
+                overflow: hidden;
+                min-inline-size: 100%;
+                font-size: .9rem;
+            }
+
+            .table-pagination button {
+                padding: .25rem 1rem;
+            }
+        }
+
+        .variable-section {
+            display: none;
+            border: 1px solid $borderColor;
+            block-size: 100%;
+            align-content: flex-start;
+            padding: .25rem .5rem;
+
+            &.inview {
+                display: grid;
+                gap: .5rem;
+            }
+            
+            .variable-section-part {
+                display: none;
+                max-block-size: 62.5svh;
+                overflow-y: auto;
+
+                &.inview {
+                    display: grid;
+                }
+            }
+
+            .section_cta_area {
+                padding: 0 0 .25rem 0;
+
+                button {
+                    padding: 5px 15px;
+                }
+            }
+
+            .section-form {
+                // border: 1px solid $borderColor;
+                padding: 1rem .5rem;
+
+                .cta-area {
+                    display: grid;
+                    justify-content: flex-end;
+                    
+                    .section-form-cta {
+                        padding: 5px 20px;
+                    }
+                }
+            }
+        }
+    }
+
+    aside.preview-area {
+        display: none;
+    }
+    
+    &.split {
+        grid-template-columns: $ctaSectionWidth calc(100% - $ctaSectionWidth - 23%) 23%;
+
+        aside.preview-area {
+            display: grid;
+        }
+    }
+
+    .preview-area {
+        background-color: white;
+        border: 1px solid $borderColor;
+        padding: 1rem;
+        align-content: flex-start;
+        gap: 1rem;
+        grid-template-rows: .1fr .35fr .1fr;
+
+        .img-wrapper {
+            display: grid;
+            justify-content: center;
+
+            img {
+                inline-size: 130px;
+                aspect-ratio: 1;
+                border-radius: 50%;
+            }
+        }
+
+        .details {
+            display: grid;
+            align-content: flex-start;
+            border: 1px solid $borderColor;
+            padding: .5rem;
+            gap: .25rem;
+
+            .detail-group {
+                display: grid;
+                grid-template-columns: .5fr 1fr;
+                gap: 1rem;
+                padding: .25rem;
+                font-size: .9rem;
+
+                &:hover {
+                    background-color: hsl(0, 0%, 98%);
+                }
+    
+                .part-title {
+                    font-weight: 500;
+                }
+            }
+        }
+
+        .cta_area {
+            display: grid;
+            grid-auto-flow: column;
+            gap: 1rem;
+            justify-content: center;
+            align-items: flex-start;
+
+            button {
+                font-size: 1rem;
+                font-weight: 500;
+                padding: .5rem 1rem;
+                border-radius: 5px;
+                background-color: #e2e9eb;
+                border: none;
+                outline: transparent;
+                cursor: pointer;
+            }
+        }
+
+    }
+
+    .request-view {
+        display: grid;
+        gap: .5rem;
+
+        .test-search-area {
+            margin: .5rem .5rem 0;
+            input {
+                border: 1px solid #d6dde4;
+                border-radius: 5px;
+                padding: .5rem 1rem;
+                inline-size: 100% !important;
+                background-color: hsl(208, 57%, 98%);
+                outline: none;
+            }
+        }
+
+        .request-body-wrapper {
+            display: grid;
+            gap: .5rem;
+
+            .request-view-body {
+                display: grid;
+                // grid-template-columns: repeat(3, 1fr);
+                grid-template-columns: 1fr 2fr;
+                gap: .25rem;
+                block-size: 65vh;
+                
+                .request-column {
+                    border: 1px solid $borderColor;
+                    border-radius: 5px;
+    
+                    header {
+                        padding: .5rem 1rem;
+                        background-color: hsl(202, 22%, 93%);
+                        
+                        h3 {
+                            font-size: 1rem;
+                            font-weight: 500;
+                            // color: hsl(0, 19%, 97%);
+                            color: $themeColor;
+                        }
+                    }
+    
+                    ul {
+                        list-style-type: none;
+                        display: grid;
+                        align-content: flex-start;
+                        gap: .5rem;
+                        padding: .5rem .25rem;
+                        block-size: 52.5vh;
+                        overflow: hidden;
+                        overflow-y: auto;
+    
+                        li {
+                            display: grid;
+                            gap: .2rem;
+                            cursor: pointer;
+                            transition: $transition;
+                            padding: .25rem .5rem;
+                            border-radius: 5px;
+                            background-color: hsl(0, 0%, 99%);
+                            position: relative;
+    
+                            &:hover {
+                                background-color: hsl(0, 0%, 100%);
+                            }
+    
+                            .test_name {
+                                color: hsl(0, 0%, 25%);
+                            }
+    
+                            .test_description {
+                                color: hsl(0, 0%, 35%);
+                            }
+                            .test_price {
+                                display: grid;
+                                gap: 0.5rem;
+                                grid-auto-flow: column;
+                                justify-self: flex-end;
+                                color: rgb(22, 21, 21);
+                                align-items: center;
+
+                                input {
+                                    border: 1px solid $borderColor;
+                                    border-radius: 5px;
+                                    padding: .5rem;
+                                }
+                            }
+    
+                            .action {
+                                // position: absolute;
+                                
+                                justify-self: flex-end;
+                                inset-block-start: 0;
+                                inset-inline-end: 0;
+                                padding: .25rem .5rem;
+                                font-size: 1rem;
+                                color: gray;
+                                // background: $accentColor;
+                            }
+                        }
+                    }
+                }
+            }
+
+            .request-footer-area {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                justify-content: stretch;
+                align-items: center;
+
+                .test-total {
+                    font-weight: bold;
+                }
+                .cta-area {
+                    display: grid;
+                    justify-content: flex-end;
+                }
+            }
+        }
+
+    }
+}

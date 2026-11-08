@@ -1,0 +1,56 @@
+{% extends '../utils/layout.html' %}
+{% load hmis %}
+{% block body_attributes %}data-remember-tab{% endblock %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <button type="button" class="accented section-togglers" data-section="charges_to_post" data-default>To post ({{ to_post|length }})</button>
+                <button type="button" class="accented section-togglers" data-section="posted_charges">Posted</button>
+                {% if to_post %}
+                <form method="post" class="inline-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="intent" value="post_charges">
+                    <button type="submit" class="accented">Post {{ currency }} {{ to_post_total|money }}</button>
+                </form>
+                {% endif %}
+            </div>
+            <section class="variable-section" id="charges_to_post">
+                <p class="help-text">Each day in a bed is charged at its ward's daily rate, the day of admission included. Posted days are added to the visit's next invoice at the cashier.</p>
+                <table class="display datatable" data-empty="Every bed day up to today is posted." style="width:100%">
+                    <thead><tr><th>Patient</th><th>Admission</th><th>Ward</th><th>Status</th><th class="num">Days to post</th><th class="num">Rate ({{ currency }})</th><th class="num">Amount ({{ currency }})</th></tr></thead>
+                    <tbody>
+                        {% for row in to_post %}
+                        <tr data-href="{% url 'clinical:admission' row.admission.pk %}">
+                            <td>{{ row.admission.patient }}</td>
+                            <td>{{ row.admission.admission_number }}</td>
+                            <td>{{ row.admission.bed.ward.name }}</td>
+                            <td><span class="status {{ row.admission.status|tone }}">{{ row.admission.get_status_display }}</span></td>
+                            <td class="num">{{ row.days }}</td>
+                            <td class="num">{{ row.admission.bed.ward.daily_rate|money }}</td>
+                            <td class="num">{{ row.amount|money }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+            <section class="variable-section" id="posted_charges">
+                <table class="display datatable" data-empty="No bed days posted yet." style="width:100%">
+                    <thead><tr><th>Day</th><th>Patient</th><th>Admission</th><th>Ward</th><th class="num">Amount ({{ currency }})</th><th>Invoiced</th></tr></thead>
+                    <tbody>
+                        {% for row in posted %}
+                        <tr>
+                            <td data-order="{{ row.charge.charge_date|date:'c' }}">{{ row.charge.charge_date|date:"D j M Y" }}</td>
+                            <td>{{ row.charge.admission.patient }}</td>
+                            <td>{{ row.charge.admission.admission_number }}</td>
+                            <td>{{ row.charge.ward.name }}</td>
+                            <td class="num">{{ row.charge.amount|money }}</td>
+                            <td>{% if row.billed %}<span class="status tone-ok">Invoiced</span>{% else %}<span class="status tone-warn">Not yet</span>{% endif %}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+        </section>
+    </main>
+{% endblock %}

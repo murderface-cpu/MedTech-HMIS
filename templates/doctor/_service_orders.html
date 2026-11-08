@@ -1,0 +1,30 @@
+<section class="variable-section" id="services_{{ category }}" data-service-category="{{ category }}">
+  <form class="section-form app-form" data-service-form>
+    <p class="section-title">{{ label }}</p>
+    <div class="form-grid">
+      <div class="form-control flex flex-column">
+        <label for="service_{{ category }}">Service</label>
+        <select class="input" id="service_{{ category }}" name="service" required>
+          <option value="">Select service</option>
+        </select>
+      </div>
+      <div class="form-control flex flex-column">
+        <label for="service_quantity_{{ category }}">Quantity</label>
+        <input class="input" type="number" min="1" step="1" value="1" id="service_quantity_{{ category }}" name="quantity" required>
+      </div>
+      <div class="form-control flex flex-column">
+        <label for="service_notes_{{ category }}">Notes</label>
+        <textarea class="input" id="service_notes_{{ category }}" name="notes" rows="2"></textarea>
+      </div>
+    </div>
+    <div class="form-actions">
+      <button type="submit" class="accented">Add</button>
+    </div>
+  </form>
+  <table id="services_table_{{ category }}" class="display" style="width:100%">
+    <thead>
+      <tr><th>Service</th><th>Quantity</th><th>Price ({{ currency }})</th><th>Total ({{ currency }})</th><th>Notes</th><th>Ordered by</th><th>Date</th><th></th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</section>

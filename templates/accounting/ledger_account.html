@@ -1,0 +1,12 @@
+{% extends '../utils/layout.html' %}
+{% block page_title %}{{ account }}{% endblock %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <a class="button-link accented" href="{% url 'finance:chart-of-accounts' %}"><i class="fa fa-arrow-left"></i>&nbsp;Chart of accounts</a>
+            </div>
+            {% include "utils/_form.html" with form=account_form intent="update" submit="Save account" %}
+        </section>
+    </main>
+{% endblock %}

@@ -1,0 +1,13 @@
+{% extends '../utils/layout.html' %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <a class="button-link accented" href="{% url 'manager:manager-admin' %}"><i class="fa fa-arrow-left"></i>&nbsp;All staff</a>
+            </div>
+            <p class="section-title">{{ staff.getFullName }} &middot; {{ staff.staff_number }}</p>
+            {% if staff.doctor %}<p class="section-subtitle">Listed as {{ staff.doctor }} when visits are assigned.</p>{% endif %}
+            {% include "./_staff_form.html" with intent="update_staff" submit="Save changes" %}
+        </section>
+    </main>
+{% endblock %}

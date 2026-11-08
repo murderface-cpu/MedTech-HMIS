@@ -1,0 +1,23 @@
+<div class="report-actions">
+    <p class="help-text">{{ table.label }}: new cases by day of the month. Diagnoses are grouped into MOH conditions by their wording; unmatched ones count as All other diseases.</p>
+    <a class="button-link" href="?month={{ month|date:'Y-m' }}&amp;format={{ code }}"><i class="fa fa-download" aria-hidden="true"></i> Download CSV</a>
+</div>
+<div class="table-scroll">
+    <table class="display moh-table">
+        <thead>
+            <tr><th scope="col" class="sticky-col">Condition</th>{% for day in table.days %}<th scope="col" class="num">{{ day }}</th>{% endfor %}<th scope="col" class="num">Total</th></tr>
+        </thead>
+        <tbody>
+            {% for row in table.rows %}
+            <tr{% if not row.total %} class="is-zero"{% endif %}>
+                <th scope="row" class="sticky-col">{{ row.condition }}</th>
+                {% for count in row.counts %}<td class="num">{% if count %}{{ count }}{% endif %}</td>{% endfor %}
+                <td class="num"><strong>{{ row.total }}</strong></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr><th scope="row" class="sticky-col">Total</th>{% for count in table.day_totals %}<td class="num">{{ count }}</td>{% endfor %}<td class="num"><strong>{{ table.total }}</strong></td></tr>
+        </tfoot>
+    </table>
+</div>

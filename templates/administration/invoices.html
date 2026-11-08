@@ -1,0 +1,89 @@
+{% extends '../utils/layout.html' %}
+{% block body_attributes %}data-remember-tab{% endblock %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <button type="button" class="accented section-togglers" data-section="all_invoices" data-default>Invoices</button>
+                <button type="button" class="accented section-togglers" data-section="new_invoice">New invoice</button>
+            </div>
+            <section class="variable-section" id="all_invoices">
+                <form method="get" class="filters">
+                    <input type="hidden" name="tab" value="all_invoices">
+                    <label>Status
+                        <select class="input" name="status">
+                            <option value="">All</option>
+                            {% for value, label in status_choices %}
+                            <option value="{{ value }}" {% if filters.status == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <label>Company
+                        <select class="input" name="company">
+                            <option value="">All</option>
+                            {% for option in company_options %}
+                            <option value="{{ option.value }}" {% if filters.company == option.value %}selected{% endif %}>{{ option.label }}</option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <button type="submit" class="accented">Filter</button>
+                </form>
+                {% include "./_invoice_table.html" %}
+            </section>
+            <section class="variable-section" id="new_invoice">
+                <form method="get" class="filters">
+                    <input type="hidden" name="tab" value="new_invoice">
+                    <label>Visit
+                        <select class="input" name="visit" required>
+                            <option value="">Select visit</option>
+                            {% for option in visits %}
+                            <option value="{{ option.pk }}" {% if visit and visit.pk == option.pk %}selected{% endif %}>
+                                {{ option.visit_id }} - {{ option.patient }} ({{ option.visit_date|date:"SHORT_DATE_FORMAT" }}{% if option.complete %}, complete{% endif %})
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </label>
+                    <button type="submit" class="accented">Show orders</button>
+                </form>
+                {% if visit %}
+                <p class="section-title">Uninvoiced orders for {{ visit.patient }} &middot; {{ visit.visit_id }}</p>
+                <p class="section-subtitle">Billing: {{ visit.billing|default:"Not set on the visit" }}</p>
+                <form method="post" class="app-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="intent" value="create_invoice">
+                    <input type="hidden" name="tab" value="new_invoice">
+                    <input type="hidden" name="visit" value="{{ visit.pk }}">
+                    {% if unbilled %}
+                    <table class="display" style="width:100%">
+                        <thead><tr><th><input type="checkbox" checked data-check-all="items" aria-label="Select all"></th><th>Department</th><th>Item</th><th>Quantity</th><th>Unit price ({{ currency }})</th><th>Total ({{ currency }})</th></tr></thead>
+                        <tbody>
+                            {% for item in unbilled %}
+                            <tr>
+                                <td><input type="checkbox" name="items" value="{{ item.source }}" checked aria-label="Invoice {{ item.description }}"></td>
+                                <td>{{ item.kind }}</td>
+                                <td>{{ item.description }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>{{ item.unit_price }}</td>
+                                <td>{{ item.total }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <p class="empty-state">Everything ordered for this visit has been invoiced.</p>
+                    {% endif %}
+                    <p class="section-title">Other item (optional)</p>
+                    <div class="form-grid">
+                        {% for field in item_form.visible_fields %}
+                            {% include "utils/_field.html" %}
+                        {% endfor %}
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="accented">Create invoice</button>
+                    </div>
+                </form>
+                {% endif %}
+            </section>
+        </section>
+    </main>
+{% endblock %}

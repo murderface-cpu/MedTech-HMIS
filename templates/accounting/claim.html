@@ -1,0 +1,53 @@
+{% extends '../utils/layout.html' %}
+{% load hmis %}
+{% block page_title %}{{ claim.claim_number }}{% endblock %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <a class="button-link accented" href="{% url 'finance:claims' %}"><i class="fa fa-arrow-left"></i>&nbsp;Claims</a>
+                <button type="button" data-action="print"><i class="fa fa-print" aria-hidden="true"></i>&nbsp;Print</button>
+            </div>
+            <div class="report">
+                <div class="invoice-header">
+                    <p class="section-title">Claim to {{ claim.insurer }} &middot; {{ hospital_name }}</p>
+                    <span class="status {{ claim.status|tone }}">{{ claim.get_status_display }}</span>
+                </div>
+                <dl class="invoice-meta">
+                    <div><dt>Patient</dt><dd>{{ claim.invoice.patient }} ({{ claim.invoice.patient.patient_id }})</dd></div>
+                    <div><dt>Member number</dt><dd>{{ claim.member_number }}</dd></div>
+                    <div><dt>Pre-authorisation</dt><dd>{{ claim.preauthorisation|default:"None" }}</dd></div>
+                    <div><dt>Invoice</dt><dd><a href="{% url 'finance:finance-invoice' claim.invoice_id %}">{{ claim.invoice.invoice_number }}</a>, {{ claim.invoice.issued_on|date:"DATE_FORMAT" }}</dd></div>
+                    <div><dt>Visit</dt><dd>{{ claim.invoice.visit.visit_id|default:"None" }}</dd></div>
+                    <div><dt>Amount claimed</dt><dd>{{ currency }} {{ claim.amount_claimed|money }}</dd></div>
+                    {% if claim.amount_approved is not None %}<div><dt>Amount approved</dt><dd>{{ currency }} {{ claim.amount_approved|money }}</dd></div>{% endif %}
+                    {% if claim.insurer_reference %}<div><dt>Insurer reference</dt><dd>{{ claim.insurer_reference }}</dd></div>{% endif %}
+                    {% if claim.rejection_reason %}<div><dt>Reason given</dt><dd>{{ claim.rejection_reason }}</dd></div>{% endif %}
+                </dl>
+                {% if diagnoses %}<dl><dt>Diagnoses</dt><dd>{% for diagnosis in diagnoses %}{{ diagnosis.diagnosis }}{% if not forloop.last %}; {% endif %}{% endfor %}</dd></dl>{% endif %}
+                <table class="display" style="width:100%">
+                    <thead><tr><th>Service</th><th class="num">Quantity</th><th class="num">Unit price ({{ currency }})</th><th class="num">Total ({{ currency }})</th></tr></thead>
+                    <tbody>
+                        {% for item in items %}<tr><td>{{ item.description }}</td><td class="num">{{ item.quantity }}</td><td class="num">{{ item.unit_price|money }}</td><td class="num">{{ item.total|money }}</td></tr>{% endfor %}
+                    </tbody>
+                </table>
+                <div class="totals"><span>Invoice total: <strong>{{ currency }} {{ claim.invoice.total|money }}</strong></span><span>Insurer's share: <strong>{{ currency }} {{ claim.invoice.company_covered|money }}</strong></span></div>
+            </div>
+
+            <div class="no-print">
+            {% if claim.status == "draft" %}
+                <p class="section-title">Check the claim</p>
+                {% include "utils/_form.html" with form=claim_form intent="update" submit="Save claim" %}
+                <form method="post" class="action-bar" data-confirm="Mark {{ claim.claim_number }} as submitted? It can no longer be edited.">
+                    {% csrf_token %}<input type="hidden" name="intent" value="submit">
+                    <p class="help-text">Submit on the {% if claim.is_sha %}SHA provider portal{% else %}insurer's portal or by email{% endif %}, then mark it here. Live submission to SHA is not connected yet.</p>
+                    <button type="submit" class="accented">Mark as submitted</button>
+                </form>
+            {% else %}
+                <p class="section-title">Record the insurer's decision</p>
+                {% include "utils/_form.html" with form=decision_form intent="decide" submit="Save decision" %}
+            {% endif %}
+            </div>
+        </section>
+    </main>
+{% endblock %}

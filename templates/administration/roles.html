@@ -1,0 +1,63 @@
+{% extends '../utils/layout.html' %}
+{% block body_attributes %}data-remember-tab{% endblock %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <button type="button" class="accented section-togglers" data-section="access_matrix" data-default>Access by account</button>
+                <button type="button" class="accented section-togglers" data-section="module_roles">What each module opens</button>
+            </div>
+            <section class="variable-section" id="access_matrix">
+                <p class="help-text">A module is a role: ticking it lets the account open that module's pages. Superusers hold every module and are changed from Data maintenance.</p>
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="intent" value="save_matrix">
+                    <input type="hidden" name="tab" value="access_matrix">
+                    <div class="table-scroll">
+                        <table class="display access-matrix">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Account</th>
+                                    {% for module in module_names %}<th scope="col" class="matrix-head"><span>{{ module }}</span></th>{% endfor %}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in rows %}
+                                <tr{% if not row.account.is_active %} class="is-inactive"{% endif %}>
+                                    <th scope="row">
+                                        <span class="matrix-account">{{ row.staff.getFullName|default:row.account.get_full_name|default:row.account.get_username }}</span>
+                                        <small class="help-text">{{ row.account.get_username }}{% if row.staff %} &middot; {{ row.staff.title }}{% endif %}{% if row.account.is_superuser %} &middot; Superuser{% endif %}{% if not row.account.is_active %} &middot; Cannot sign in{% endif %}</small>
+                                    </th>
+                                    {% for module in module_names %}
+                                    <td class="matrix-cell">
+                                        <input type="checkbox" name="modules_{{ row.account.pk }}" value="{{ module }}" aria-label="{{ module }} for {{ row.account.get_username }}"
+                                               {% if module in row.held %}checked{% endif %} {% if row.locked %}disabled{% endif %}>
+                                    </td>
+                                    {% endfor %}
+                                </tr>
+                                {% empty %}
+                                <tr><td colspan="12" class="dataTables_empty">No accounts yet. Register staff with a username to give them access.</td></tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="form-actions"><button type="submit" class="accented">Save access</button></div>
+                </form>
+            </section>
+            <section class="variable-section" id="module_roles">
+                <table class="display" style="width:100%">
+                    <thead><tr><th>Module</th><th class="num">Active accounts</th><th>Pages it opens</th></tr></thead>
+                    <tbody>
+                        {% for module in modules %}
+                        <tr>
+                            <td><strong>{{ module.name }}</strong></td>
+                            <td class="num">{{ module.members }}</td>
+                            <td><ul class="lookup-list" role="list">{% for page in module.pages %}<li>{{ page }}</li>{% endfor %}</ul></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </section>
+        </section>
+    </main>
+{% endblock %}

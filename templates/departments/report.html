@@ -1,0 +1,41 @@
+{% extends '../utils/layout.html' %}
+{% block content %}
+    <main>
+        <section class="main-content-area">
+            <div class="main-cta-section">
+                <a class="button-link accented" href="{% url list_url_name %}"><i class="fa fa-arrow-left"></i>&nbsp;{{ department_label }}</a>
+                <button type="button" class="accented" data-action="print"><i class="fa fa-print"></i>&nbsp;Print</button>
+            </div>
+            {% with patient=department_request.visit.patient %}
+            <div class="report">
+                <div class="invoice-header">
+                    <p class="section-title">{{ department_label }} report &middot; {{ hospital_name }}</p>
+                    <span class="status {{ department_request.status }}">{{ department_request.get_status_display }}</span>
+                </div>
+                <dl class="invoice-meta">
+                    <div><dt>Patient</dt><dd>{{ patient }} ({{ patient.patient_id }})</dd></div>
+                    <div><dt>Gender / Age</dt><dd>{{ patient.gender }} / {{ patient.age }}</dd></div>
+                    <div><dt>Visit</dt><dd>{{ department_request.visit.visit_id }}</dd></div>
+                    <div><dt>Examination</dt><dd>{{ department_request.service.name }}</dd></div>
+                    <div><dt>Requested by</dt><dd>{{ department_request.requested_by|default:"" }}, {{ department_request.created_on|date:"DATETIME_FORMAT" }}</dd></div>
+                    {% if department_request.reported_on %}<div><dt>Reported by</dt><dd>{{ department_request.reported_by|default:"" }}, {{ department_request.reported_on|date:"DATETIME_FORMAT" }}</dd></div>{% endif %}
+                </dl>
+                {% if department_request.narration %}
+                <dl><dt>Clinical notes</dt><dd>{{ department_request.narration }}</dd></dl>
+                {% endif %}
+                {% if department_request.status == "completed" %}
+                <dl>
+                    <dt>Findings</dt><dd>{{ department_request.result }}</dd>
+                    {% if department_request.reference_range %}<dt>Reference range</dt><dd>{{ department_request.reference_range }}</dd>{% endif %}
+                    {% if department_request.comments %}<dt>Comments</dt><dd>{{ department_request.comments }}</dd>{% endif %}
+                </dl>
+                {% endif %}
+            </div>
+            {% endwith %}
+            <div class="no-print">
+                <p class="section-title">{% if department_request.status == "completed" %}Amend report{% else %}Report{% endif %}</p>
+                {% include "utils/_form.html" with form=report_form intent="report" submit="Save report" %}
+            </div>
+        </section>
+    </main>
+{% endblock %}
